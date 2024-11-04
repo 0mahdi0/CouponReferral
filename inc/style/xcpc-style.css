@@ -1,0 +1,228 @@
+.normal_login_page .login-container ,.doctor_login_page .login-container {
+    text-align: center;
+    margin-top: 20%;
+}
+
+.normal_login_page #loginBtn,.doctor_login_page #loginBtn {
+    font-size: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.normal_login_page .popup,.doctor_login_page .popup {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.normal_login_page .popup-content, .doctor_login_page .popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.normal_login_page .close-btn, .doctor_login_page .close-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.normal_login_page form, .doctor_login_page form {
+    display: flex;
+    flex-direction: column;
+}
+
+.normal_login_page input, .doctor_login_page input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-align: right;
+}
+
+.normal_login_page button, .doctor_login_page button {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.normal_login_page label, .doctor_login_page label {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;
+    margin: 10px 0;
+}
+
+.normal_login_page h2, .doctor_login_page h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+#xcpc_captcha_img {
+    width: 120px;
+    position: absolute;
+    left: 20px;
+    border-radius: 5px;
+}
+
+#xcpc_captcha_input {
+    width: 55%;
+    border-radius: 5px;
+}
+
+#signup_success_message {
+    display: none;
+    color: green;
+}
+
+
+#signup_fail_message {
+    display: none;
+    color: red;
+}
+
+button.otp_verify_button {
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Doctor-Products Style */
+
+.doctor-product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+}
+
+.product-item {
+    width: 250px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+}
+
+.product-title {
+    display: block;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    text-decoration: none;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fafafa;
+    transition: color 0.2s;
+}
+
+.product-title:hover {
+    color: #0073aa;
+}
+
+.price-container {
+    padding: 15px;
+    text-align: center;
+}
+
+.doctor-price, .patient-price {
+    display: block;
+    font-size: 16px;
+    color: #555;
+}
+
+.doctor-price {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.patient-price {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.no-products {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
+}
+
+input#coupon_code {
+    display: none;
+}
+
+button[name="apply_coupon"] {
+    display: none;
+}
+
+/* Style for the input field (matches WooCommerce's default input styles) */
+#xcpc_cheap_code_field {
+    width: 100%;
+    max-width: 190px;
+    margin-right: 10px;
+    padding: 0.6180469716em 1.6180469716em;
+    font-size: 1em;
+    line-height: 1.618;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+/* Style for the button (matches WooCommerce's default button styles) */
+#update_cart_button {
+    display: inline-block;
+    margin: 0;
+    padding: 0.6180469716em 1.6180469716em;
+    font-size: 1em;
+    line-height: 1.618;
+    text-align: center;
+    color: var(--wp--preset--color--base);
+    background-color: var(--wp--preset--color--contrast);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Hover effect for the button */
+#update_cart_button:hover {
+    background-color: var(--wp--preset--color--contrast-2);
+}
+
+/* Ensure the button is disabled appropriately */
+#update_cart_button:disabled {
+    background-color: var(--wp--preset--color--contrast);
+    cursor: not-allowed;
+}
