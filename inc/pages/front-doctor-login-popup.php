@@ -4,17 +4,13 @@ $captcha = new Captcha;
 ?>
 <!-- Main Page Layout -->
 <div class="doctor_login_page">
-    <div class="login-container">
-        <button id="loginBtn" onclick="showLoginPopup()">ورود</button>
-    </div>
-
     <!-- Login Popup -->
     <div id="loginPopup" class="popup">
         <div class="popup-content">
-            <span class="close-btn" onclick="closeLoginPopup()">&times;</span>
             <h2>ورود به حساب پزشکان</h2>
             <form id="xcpc_phoneForm">
                 <label for="phone">شماره موبایل:</label>
+                <input type="hidden" value="doctor" name="xcpc_login_input_type" id="xcpc_login_input_type">
                 <input type="tel" id="xcpc_phone_input" name="phone" placeholder="شماره موبایل خود را وارد کنید"
                     required>
                 <div class="captcha-section">
@@ -25,13 +21,13 @@ $captcha = new Captcha;
                             required>
                     </div>
                 </div>
-                <button type="button" onclick="sendOTP()">ارسال کد</button>
+                <button type="button" class="login-btn" onclick="sendOTP(this)">ارسال کد</button>
             </form>
 
             <form id="xcpc_otp_form" style="display: none;">
                 <label for="otp">کد تایید:</label>
                 <input type="text" id="xcpc_otp" name="otp" placeholder="کد تایید را وارد کنید" required>
-                <button type="button" onclick="verifyOTP()">ورود</button>
+                <button type="button" class="login-btn" onclick="verifyOTP(this)">ورود</button>
             </form>
 
             <form id="xcpc_signup_form" style="display: none;">
@@ -48,11 +44,11 @@ $captcha = new Captcha;
                     <input type="radio" id="xcpc_gender_woman" name="gender" value="woman">
                     <label for="xcpc_gender_woman">زن</label>
                 </div>
-                <button type="button" onclick="signup()">ثبت نام</button>
+                <button type="button" class="login-btn" onclick="signup(this)">ثبت نام</button>
             </form>
             <div>
                 <p id="signup_success_message">ثبت نام با موفقیت انجام شد. انتقال به حساب کاربری...</p>
-                <p id="signup_fail_message">ثبت نام با خطا مواجه شد!</p>
+                <p id="signup_fail_else"></p>
             </div>
         </div>
     </div>

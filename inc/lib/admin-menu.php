@@ -5,7 +5,6 @@ class CouponReferralMenu
     public function __construct()
     {
         add_action('wp_ajax_xcpc_submit_setting_form', [$this, 'xcpc_submit_setting_form']);
-        add_action('wp_ajax_nopriv_xcpc_submit_setting_form', [$this, 'xcpc_submit_setting_form']);
     }
 
     public function addCouponReferralMenu()
@@ -27,15 +26,15 @@ class CouponReferralMenu
         // Retrieve form data
         $formDatas = $_POST['formData'];
         // // Access each form field's content
-        foreach ($formDatas as $key => $formData) {
-            $formDatas[$key] = sanitize_text_field($formData);
-        }
+        // foreach ($formDatas as $key => $formData) {
+        //     $formDatas[$key] = sanitize_text_field($formData);
+        // }
         // Process or store the data as needed
         $xcpcConfig = get_option('xcpcConfig');
         if ($xcpcConfig) {
-            update_option("xcpcConfig", $formDatas);
+            update_option("xcpcConfig", $formDatas,);
         } else {
-            add_option("xcpcConfig", $formDatas);
+            add_option("xcpcConfig", $formDatas,);
         }
         wp_send_json_success("با موفقیت ذخیره شد", 200);
     }
@@ -43,6 +42,7 @@ class CouponReferralMenu
     public function callbackCouponReferralMenu()
     {
         $xcpcConfig = get_option('xcpcConfig');
+        // $xcpcConfig = json_decode($xcpcConfig, true);
         include_once(XCPC_DIR . "inc/pages/callback-coupon-referral-menu.php");
     }
     public function xcpcAdminAssets()

@@ -30,8 +30,27 @@
         </div>
         <div class="discount-section">
             <label for="withdrawal-conditions">شرط های برداشت پول و تعیین درصد های آن</label>
-            <input type="number" name="withdrawal-conditions" id="withdrawal-conditions"
-                value="<?= $xcpcConfig['withdrawalConditions'] ?>" required>
+            <button onclick="addConditionsForm()" class="submit-button">+</button>
+            <div class="withdrawal-conditions">
+                <script>
+                    let conditions = [];
+                </script>
+                <?php foreach ($xcpcConfig['withdrawalConditions'] as $Condition_key => $Condition) : ?>
+                    <div>
+                        <input type="number" onkeyup="setConditionValue('min',<?= $Condition_key ?>,this)" placeholder="حداقل (تومان)" value="<?= $Condition['min'] ?>" class="conditions-min">
+                        <input type="number" onkeyup="setConditionValue('max',<?= $Condition_key ?>,this)" placeholder="حداکثر (تومان)" value="<?= $Condition['max'] ?>" class="conditions-max">
+                        <input type="number" onkeyup="setConditionValue('precent',<?= $Condition_key ?>,this)" placeholder="درصد برداشت" value="<?= $Condition['precent'] ?>" min="1" max="100" disabled class="conditions-precent">
+                        <button onclick="removeConditionsForm(<?= $Condition_key ?>)" class="submit-button">-</button>
+                    </div>
+                    <script>
+                        conditions.push({
+                            "min": <?= $Condition['min'] ?>,
+                            "max": <?= $Condition['max'] ?>,
+                            "precent": <?= $Condition['precent'] ?>
+                        });
+                    </script>
+                <?php endforeach; ?>
+            </div>
         </div>
         <div class="discount-section">
             <label for="specific-user-return">درصد بازگشت مبلغ به کیف پول برای کاربر های خاص</label>

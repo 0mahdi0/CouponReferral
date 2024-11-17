@@ -39,11 +39,11 @@ class WC_Gateway_Melli extends WC_Payment_Gateway
 		$this->order_button_text = __('پرداخت', 'woocommerce');
 		$this->method_title = __('بانک ملی', 'woocommerce');
 		$this->method_description = __('درگاه پرداخت بانک ملی! برای استفاده از این درگاه لازم است ماژول curl روی سرور شما فعال باشد.', 'woocommerce');
-		
+
 		// Load the settings.
 		$this->init_form_fields();
 		$this->init_settings();
-		
+
 		// Define user set variables.
 		$this->title = $this->settings['title'];
 
@@ -58,7 +58,8 @@ class WC_Gateway_Melli extends WC_Payment_Gateway
 		}
 
 		add_action('woocommerce_receipt_' . $this->id, array($this, 'redirect_to_bank'));
-		add_action('woocommerce_api_' . strtolower(get_class($this)), array($this, 'bank_callback'));
+		// add_action('woocommerce_api_' . strtolower(get_class($this)), array($this, 'bank_callback'));
+		add_action('woocommerce_api_' . strtolower('WC_Gateway_Melli'), array($this, 'bank_callback'));
 	}
 
 	function init_form_fields()
@@ -165,65 +166,54 @@ class WC_Gateway_Melli extends WC_Payment_Gateway
 		$woocommerce->session->order_id_sadadpsp = $order_id;
 		$order = new WC_Order($order_id);
 		$currency = $order->get_order_currency();
+		$Amount = $this->get_price(intval($order->order_total), $currency);
 
-		$form = '<form action="" method="POST" id="mw-checkout-form">
-						<input type="submit" name="mw_submit" class="button alt" value="' . __('پرداخت', 'woocommerce') . '"/>
-						<a class="button cancel" href="' . $woocommerce->cart->get_checkout_url() . '">' . __('بازگشت', 'woocommerce') . '</a>
-					 </form><br/>';
-		echo $form;
+		$terminal_id = $this->terminal_id;
+		$merchant_id = $this->merchant_id;
+		$terminal_key = $this->terminal_key;
 
-		if (isset($_POST["mw_submit"])) {
-			$Amount = $this->get_price(intval($order->order_total), $currency);
+		// $callBackUrl = add_query_arg('wc_order', $order_id, WC()->api_request_url('WC_Gateway_Melli'));
+        $callBackUrl = home_url()."/payment_verify";
 
-			$terminal_id = $this->terminal_id;
-			$merchant_id = $this->merchant_id;
-			$terminal_key = $this->terminal_key;
+		$sign_data = $this->sadad_encrypt($terminal_id . ';' . $order_id . ';' . $Amount, $terminal_key);
+		$parameters = array(
+			'MerchantID' => $merchant_id,
+			'TerminalId' => $terminal_id,
+			'Amount' => $Amount,
+			'OrderId' => $order_id,
+			'LocalDateTime' => date('Ymdhis'),
+			'ReturnUrl' => $callBackUrl,
+			'SignData' => $sign_data,
+		);
 
-			$orderId = date('ymdHis');
-			$callBackUrl = add_query_arg('wc_order', $order_id, WC()->api_request_url('WC_Gateway_Melli'));
+		$error_flag = false;
+		$error_msg = '';
+		$result = $this->sadad_call_api('https://sadad.shaparak.ir/VPG/api/v0/Request/PaymentRequest', $parameters);
 
-			$sign_data = $this->sadad_encrypt($terminal_id . ';' . $orderId . ';' . $Amount, $terminal_key);
-			$parameters = array(
-				'MerchantID' => $merchant_id,
-				'TerminalId' => $terminal_id,
-				'Amount' => $Amount,
-				'OrderId' => $orderId,
-				'LocalDateTime' => date('Ymdhis'),
-				'ReturnUrl' => $callBackUrl,
-				'SignData' => $sign_data,
-			);
-
-			$error_flag = false;
-			$error_msg = '';
-			$result = $this->sadad_call_api('https://sadad.shaparak.ir/VPG/api/v0/Request/PaymentRequest', $parameters);
-
-			if ($result != false) {
-				if ($result->ResCode == 0) {
-					//header('Location: https://sadad.shaparak.ir/VPG/Purchase?Token=' . $res->Token);
-					echo '<form id="redirect_to_melli" method="get" action="https://sadad.shaparak.ir/VPG/Purchase" style="display:none !important;"  >
+		if ($result != false) {
+			if ($result->ResCode == 0) {
+				//header('Location: https://sadad.shaparak.ir/VPG/Purchase?Token=' . $res->Token);
+				echo '<form id="redirect_to_melli" method="get" action="https://sadad.shaparak.ir/VPG/Purchase" style="display:none !important;"  >
 										<input type="hidden"  name="Token" value="' . $result->Token . '" />
 										<input type="submit" value="Pay"/>
 									</form>
 									<script language="JavaScript" type="text/javascript">
 										document.getElementById("redirect_to_melli").submit();
 									</script>';
-
-				} else {
-					//bank returned an error
-					$error_flag = true;
-					$error_msg = 'خطا در برقراری ارتباط با بانک! ' . $this->sadad_request_err_msg($result->ResCode);
-				}
 			} else {
-				// couldn't connect to bank
+				//bank returned an error
 				$error_flag = true;
-				$error_msg = 'خطا! برقراری ارتباط با بانک امکان پذیر نیست.';
+				$error_msg = 'خطا در برقراری ارتباط با بانک! ' . $this->sadad_request_err_msg($result->ResCode);
 			}
-			if ($error_flag) {
-				$order->add_order_note($error_msg);
-				wc_add_notice($error_msg, 'error');
-			}
+		} else {
+			// couldn't connect to bank
+			$error_flag = true;
+			$error_msg = 'خطا! برقراری ارتباط با بانک امکان پذیر نیست.';
 		}
-
+		if ($error_flag) {
+			$order->add_order_note($error_msg);
+			wc_add_notice($error_msg, 'error');
+		}
 	}
 
 	/**
@@ -240,96 +230,104 @@ class WC_Gateway_Melli extends WC_Payment_Gateway
 	 **/
 	function bank_callback()
 	{
+		// global $woocommerce;
 
-		global $woocommerce;
+		// if (isset($_POST['OrderId'])) {
+		// 	$order_id = $_POST['OrderId'];
+		// } elseif (isset($_GET['wc_order'])) {
+		// 	$order_id = $_GET['wc_order'];
+		// } else {
+		// 	$error_msg = __('شماره سفارش وجود ندارد.', 'woocommerce');
+		// 	wc_add_notice($error_msg, 'error');
+		// 	wp_redirect($woocommerce->cart->get_checkout_url());
+		// 	exit;
+		// }
 
-		if (isset($_GET['wc_order'])) {
-			$order_id = $_GET['wc_order'];
-		} else {
-			$order_id = $woocommerce->session->order_id_sadadpsp;
-		}
+		// $order = wc_get_order($order_id);
 
-		if ($order_id) {
+		// if ($order->get_status() != 'completed') {
+		// 	$terminal_key = $this->terminal_key;
 
-			$order = new WC_Order($order_id);
+		// 	if (isset($_POST['token']) && isset($_POST['ResCode'])) {
+		// 		$ResCode = $_POST['ResCode'];
 
-			if ($order->status != 'completed') {
+		// 		if ($ResCode == '0') {
+		// 			$token = $_POST['token'];
 
-				$terminal_key = $this->terminal_key;
+		// 			// Verify payment
+		// 			$parameters = array(
+		// 				'Token' => $token,
+		// 				'SignData' => $this->sadad_encrypt($token, $terminal_key),
+		// 			);
 
-				if (isset($_POST['token']) && isset($_POST['OrderId']) && isset($_POST['ResCode'])) {
-					$token = $_POST['token'];
+		// 			$result = $this->sadad_call_api('https://sadad.shaparak.ir/VPG/api/v0/Advice/Verify', $parameters);
 
-					//verify payment
-					$parameters = array(
-						'Token' => $token,
-						'SignData' => $this->sadad_encrypt($token, $terminal_key),
-					);
+		// 			if ($result != false) {
+		// 				if ($result->ResCode == 0) {
+		// 					// Payment successful
+		// 					// (Your existing code to handle successful payment)
 
-					$result = $this->sadad_call_api('https://sadad.shaparak.ir/VPG/api/v0/Advice/Verify', $parameters);
+		// 					$RetrivalRefNo = $result->RetrivalRefNo;
+		// 					$TraceNo = $result->SystemTraceNo;
+		// 					$OrderId = $result->OrderId;
 
+		// 					// Update order meta
+		// 					update_post_meta($order_id, 'WC_Gateway_Melli_OrderId', $OrderId);
+		// 					update_post_meta($order_id, 'WC_Gateway_Melli_RetrivalRefNo', $RetrivalRefNo);
+		// 					update_post_meta($order_id, 'WC_Gateway_Melli_TraceNo', $TraceNo);
 
-					if ($result != false) {
-						if ($result->ResCode == 0) {
-							$RetrivalRefNo = $result->RetrivalRefNo;
-							$TraceNo = $result->SystemTraceNo;
-							$OrderId = $result->OrderId;
+		// 					$order->payment_complete($TraceNo);
+		// 					$woocommerce->cart->empty_cart();
 
-							update_post_meta($order_id, 'WC_Gateway_Melli_OrderId', $OrderId);
-							update_post_meta($order_id, 'WC_Gateway_Melli_RetrivalRefNo', $RetrivalRefNo);
-							update_post_meta($order_id, 'WC_Gateway_Melli_TraceNo', $TraceNo);
+		// 					// Add order note
+		// 					$Note = __('پرداخت موفقیت آمیز بود.', 'woocommerce') . '<br>';
+		// 					$Note .= __("کد رهگیری (کد مرجع تراکنش): {$RetrivalRefNo}", 'woocommerce') . '<br>';
+		// 					$Note .= __("شماره درخواست تراکنش: {$TraceNo}", 'woocommerce') . '<br>';
+		// 					$order->add_order_note($Note);
 
-							$order->payment_complete($TraceNo);
-							$woocommerce->cart->empty_cart();
+		// 					// Add success notice
+		// 					$Notice = wpautop(wptexturize($this->settings['success_massage']));
+		// 					$Notice = str_replace("{transaction_id}", $RetrivalRefNo, $Notice);
+		// 					$Notice = str_replace("{SaleOrderId}", $TraceNo, $Notice);
+		// 					wc_add_notice($Notice, 'success');
 
-							$Note = __('پرداخت موفقیت آمیز بود.', 'woocommerce') . '<br>';
-							$Note .= __("کد رهگیری (کد مرجع تراکنش): {$RetrivalRefNo}", 'woocommerce') . '<br>';
-							$Note .= __("شماره درخواست تراکنش: {$TraceNo}", 'woocommerce') . '<br>';
-
-							$order->add_order_note($Note);
-
-							$Notice = wpautop(wptexturize($this->settings['success_massage']));
-							$Notice = str_replace("{transaction_id}", $RetrivalRefNo, $Notice);
-							$Notice = str_replace("{SaleOrderId}", $TraceNo, $Notice);
-
-							wc_add_notice($Notice, 'success');
-
-							wp_redirect(add_query_arg('wc_status', 'success', $this->get_return_url($order)));
-							exit;
-
-						} else {
-							//couldn't verify the payment due to a back error
-							$error_flag = true;
-							$error_msg = 'خطا هنگام پرداخت! ' . $this->sadad_verify_err_msg($result->ResCode);
-						}
-					} else {
-						//couldn't verify the payment due to a connection failure to bank
-						$error_flag = true;
-						$error_msg = 'خطا! عدم امکان دریافت تاییدیه پرداخت از بانک';
-					}
-					if ($error_flag) {
-						wc_add_notice($error_msg, 'error');
-						wp_redirect($woocommerce->cart->get_checkout_url());
-						exit;
-					}
-
-
-				} else {
-
-				}
-
-			} else {
-				$Notice = wpautop(wptexturize($this->settings['success_massage']));
-				wc_add_notice($Notice, 'success');
-				wp_redirect(add_query_arg('wc_status', 'success', $this->get_return_url($order)));
-				exit;
-			}
-		} else {
-			$error_msg = __('شماره سفارش وجود ندارد .', 'woocommerce');
-			wc_add_notice($error_msg, 'error');
-			wp_redirect($woocommerce->cart->get_checkout_url());
-			exit;
-		}
+		// 					// Redirect to thank you page
+		// 					wp_redirect(add_query_arg('wc_status', 'success', $this->get_return_url($order)));
+		// 					exit;
+		// 				} else {
+		// 					// Verification failed
+		// 					$error_msg = 'خطا هنگام پرداخت! ' . $this->sadad_verify_err_msg($result->ResCode);
+		// 					wc_add_notice($error_msg, 'error');
+		// 					wp_redirect($woocommerce->cart->get_checkout_url());
+		// 					exit;
+		// 				}
+		// 			} else {
+		// 				// Could not verify payment
+		// 				$error_msg = 'خطا! عدم امکان دریافت تاییدیه پرداخت از بانک';
+		// 				wc_add_notice($error_msg, 'error');
+		// 				wp_redirect($woocommerce->cart->get_checkout_url());
+		// 				exit;
+		// 			}
+		// 		} else {
+		// 			// Payment failed at bank
+		// 			$error_msg = 'خطا هنگام پرداخت! ' . $this->sadad_request_err_msg($ResCode);
+		// 			wc_add_notice($error_msg, 'error');
+		// 			wp_redirect($woocommerce->cart->get_checkout_url());
+		// 			exit;
+		// 		}
+		// 	} else {
+		// 		$error_msg = __('اطلاعات دریافتی از بانک کامل نیست.', 'woocommerce');
+		// 		wc_add_notice($error_msg, 'error');
+		// 		wp_redirect($woocommerce->cart->get_checkout_url());
+		// 		exit;
+		// 	}
+		// } else {
+		// 	// Order already completed
+		// 	$Notice = wpautop(wptexturize($this->settings['success_massage']));
+		// 	wc_add_notice($Notice, 'success');
+		// 	wp_redirect(add_query_arg('wc_status', 'success', $this->get_return_url($order)));
+		// 	exit;
+		// }
 	}
 
 	private function get_price($amount, $currency)
@@ -371,7 +369,6 @@ class WC_Gateway_Melli extends WC_Payment_Gateway
 			$cipher = new Crypt_TripleDES();
 			return $cipher->letsEncrypt($key, $data);
 		}
-
 	}
 
 	private function sadad_call_api($url, $data = false)
@@ -550,8 +547,6 @@ class WC_Gateway_Melli extends WC_Payment_Gateway
 		}
 		return __($error_text, 'woocommerce');
 	}
-
-
 }
 
 /**
@@ -564,5 +559,3 @@ function add_woocommerce_melli_gateway($methods)
 }
 
 add_filter('woocommerce_payment_gateways', 'add_woocommerce_melli_gateway');
-
-?>

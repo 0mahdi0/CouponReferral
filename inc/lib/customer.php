@@ -12,15 +12,29 @@ class CouponReferralCustomer
         // add_action('wp_ajax_xcpc_send_sms_to_phone', [$this, 'xcpcSendSmsToPhone']);
         // add_action('wp_ajax_xcpc_signup', [$this, 'xcpcSignup']);
 
-
         add_action('wp_ajax_apply_custom_coupon_code_ajax', [$this, 'apply_custom_coupon_code_ajax']);
         add_action('wp_ajax_nopriv_apply_custom_coupon_code_ajax', [$this, 'apply_custom_coupon_code_ajax']);
 
-
         add_shortcode('xcpc_login', [$this, 'shortcodeXcpcLogin']);
         add_action('woocommerce_cart_coupon', [$this, 'xcpcInputCheapCode']);
+        add_action('woocommerce_applied_coupon', [$this, 'set_dynamic_coupon_type']);
     }
-
+    public function set_dynamic_coupon_type($coupon_code)
+    {
+        $coupon = new WC_Coupon($coupon_code);
+        $coupon_id = $coupon->get_id();
+        $author_id = get_post_field('post_author', $coupon_id);
+        $current_user_id = get_current_user_id();
+        if ($author_id != $current_user_id) {
+            $xcpcConfig = get_option('xcpcConfig');
+            update_post_meta($coupon_id, 'coupon_amount', floatval($xcpcConfig['discountCode']));
+        } else {
+            wc_clear_notices();
+            WC()->cart->remove_coupon($coupon_code);
+            wc_add_notice("شما نمی‌توانید از کد خود استفاده کنید", 'error');
+        }
+        WC()->cart->calculate_totals();
+    }
     public function apply_custom_coupon_code_ajax()
     {
         if (isset($_POST['xcpc_cheap_code_field']) && !empty($_POST['xcpc_cheap_code_field'])) {
@@ -38,55 +52,55 @@ class CouponReferralCustomer
     }
 
     public function xcpcInputCheapCode()
-{
+    {
 ?>
-    <div class="woocommerce-cart-custom-coupon">
-        <label for="xcpc_cheap_code_field">کد خرید ارزان: </label>
-        <input type="text" name="xcpc_cheap_code_field" id="xcpc_cheap_code_field" value=""
-            placeholder="کد تخفیف را وارد کنید" />
-        <button type="button" class="button" id="update_cart_button" disabled>ثبت کد</button>
-    </div>
-    <script>
-        function setupCouponCodeHandler() {
-            jQuery(document).ready(function($) {
-                // Enable button on keyup
-                $('#xcpc_cheap_code_field').on('keyup', function() {
-                    $('#update_cart_button').prop('disabled', !$(this).val().length);
-                });
+        <div class="woocommerce-cart-custom-coupon">
+            <label for="xcpc_cheap_code_field">کد خرید ارزان: </label>
+            <input type="text" name="xcpc_cheap_code_field" id="xcpc_cheap_code_field" value=""
+                placeholder="کد تخفیف را وارد کنید" />
+            <button type="button" class="button" id="update_cart_button" disabled>ثبت کد</button>
+        </div>
+        <script>
+            function setupCouponCodeHandler() {
+                jQuery(document).ready(function($) {
+                    // Enable button on keyup
+                    $('#xcpc_cheap_code_field').on('keyup', function() {
+                        $('#update_cart_button').prop('disabled', !$(this).val().length);
+                    });
 
-                // AJAX for submitting the custom code without page reload
-                $('#update_cart_button').on('click', function() {
-                    var xcpc_cheap_code_field = $('#xcpc_cheap_code_field').val();
+                    // AJAX for submitting the custom code without page reload
+                    $('#update_cart_button').on('click', function() {
+                        var xcpc_cheap_code_field = $('#xcpc_cheap_code_field').val();
 
-                    $.ajax({
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        type: 'POST',
-                        data: {
-                            action: 'apply_custom_coupon_code_ajax',
-                            xcpc_cheap_code_field: xcpc_cheap_code_field
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                $('.woocommerce-cart-form').before('<div class="woocommerce-message">' + response.data + '</div>');
-                            } else {
-                                $('.woocommerce-cart-form').before('<div class="woocommerce-error">' + response.data + '</div>');
+                        $.ajax({
+                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                            type: 'POST',
+                            data: {
+                                action: 'apply_custom_coupon_code_ajax',
+                                xcpc_cheap_code_field: xcpc_cheap_code_field
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    $('.woocommerce-cart-form').before('<div class="woocommerce-message">' + response.data + '</div>');
+                                } else {
+                                    $('.woocommerce-cart-form').before('<div class="woocommerce-error">' + response.data + '</div>');
+                                }
                             }
-                        }
+                        });
                     });
                 });
-            });
-        }
+            }
 
-        // Initial setup
-        setupCouponCodeHandler();
-
-        // Reattach event listeners after cart updates
-        jQuery(document.body).on('updated_cart_totals', function() {
+            // Initial setup
             setupCouponCodeHandler();
-        });
-    </script>
+
+            // Reattach event listeners after cart updates
+            jQuery(document.body).on('updated_cart_totals', function() {
+                setupCouponCodeHandler();
+            });
+        </script>
 <?php
-}
+    }
 
     public function xcpcSendSmsToPhone()
     {

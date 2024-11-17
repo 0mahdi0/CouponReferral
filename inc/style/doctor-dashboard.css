@@ -1,0 +1,164 @@
+/* doctor-dashboard.css */
+
+/* Container for the dashboard */
+.doctor-dashboard-container {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 600px; /* Adjust as needed */
+    background-color: #fff;
+}
+
+/* Tabs on the right */
+.doctor-dashboard-container .tabs {
+    width: 200px;
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ddd;
+}
+
+.doctor-dashboard-container .tab {
+    padding: 15px;
+    cursor: pointer;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    background-color: #f7f7f7;
+    transition: background-color 0.3s;
+}
+
+.doctor-dashboard-container .tab:hover {
+    background-color: #eaeaea;
+}
+
+.doctor-dashboard-container .tab.active {
+    background-color: #fff;
+    font-weight: bold;
+    border-right: 3px solid #0073aa;
+}
+
+/* Content area */
+.doctor-dashboard-container .tab-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Tab panes */
+.doctor-dashboard-container .tab-pane {
+    display: none;
+}
+
+.doctor-dashboard-container .tab-pane.active {
+    display: block;
+}
+
+/* Order History Table */
+.order-history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-history-table th,
+.order-history-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.order-history-table th {
+    background-color: #f0f0f0;
+}
+
+.order-history-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.order-history-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Profile Form */
+.doctor-profile-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.doctor-profile-form .form-group {
+    margin-bottom: 15px;
+}
+
+.doctor-profile-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.doctor-profile-form input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.profile-submit-btn {
+    background-color: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.profile-submit-btn:hover {
+    background-color: #005983;
+}
+
+/* Success and Error Messages */
+.success-message {
+    color: #28a745;
+    margin-top: 10px;
+}
+
+.error-message {
+    color: #dc3545;
+    margin-top: 10px;
+}
+
+/* Login Required Message */
+.login-required {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    padding: 50px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .doctor-dashboard-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .doctor-dashboard-container .tabs {
+        width: 100%;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .doctor-dashboard-container .tab {
+        flex: 1;
+        border-bottom: none;
+        border-right: 1px solid #ddd;
+    }
+
+    .doctor-dashboard-container .tab:last-child {
+        border-right: none;
+    }
+
+    .doctor-dashboard-container .tab-content {
+        padding: 15px;
+    }
+}

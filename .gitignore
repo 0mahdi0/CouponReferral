@@ -3,6 +3,7 @@ node_modules/
 
 # Ignore Composer's vendor directory (if using Composer)
 vendor/
+vendor-dev/
 
 # Ignore build directories
 build/

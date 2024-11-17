@@ -1,0 +1,134 @@
+/* doctor-product-list.css */
+
+/* Container for the product list */
+.doctor-product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+}
+
+/* Individual product item */
+.product-item {
+    width: 250px; /* Fixed width for consistency */
+    box-sizing: border-box;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    overflow: hidden;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+}
+
+/* Links within product items */
+.product-item a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Product title styling */
+.product-title {
+    display: block;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fafafa;
+    transition: color 0.2s;
+}
+
+.product-title:hover {
+    color: #0073aa;
+}
+
+/* Container for prices */
+.price-container {
+    padding: 15px;
+    text-align: center;
+    margin-top: 10px; /* Combined margin from duplicate selectors */
+}
+
+/* Doctor and patient price styling */
+.doctor-price,
+.patient-price {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.doctor-price {
+    color: #28a745; /* Green for doctor price */
+}
+
+.patient-price {
+    color: #dc3545; /* Red for patient price */
+}
+
+/* Quantity selector container */
+.quantity-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+/* Quantity buttons */
+.quantity-btn {
+    background-color: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.quantity-btn:hover {
+    background-color: #005983;
+}
+
+/* Quantity input field */
+.quantity-input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ccc;
+    margin: 0 5px;
+    font-size: 16px;
+    padding: 6px 0;
+    border-radius: 4px;
+}
+
+/* Message when no products are found */
+.no-products {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .product-item {
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .product-item {
+        width: 100%;
+    }
+}
