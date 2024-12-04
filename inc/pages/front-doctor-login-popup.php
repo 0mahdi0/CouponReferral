@@ -11,13 +11,13 @@ $captcha = new Captcha;
             <form id="xcpc_phoneForm">
                 <label for="phone">شماره موبایل:</label>
                 <input type="hidden" value="doctor" name="xcpc_login_input_type" id="xcpc_login_input_type">
-                <input type="tel" id="xcpc_phone_input" name="phone" placeholder="شماره موبایل خود را وارد کنید"
+                <input type="number" id="xcpc_phone_input" name="phone" placeholder="شماره موبایل خود را وارد کنید"
                     required>
                 <div class="captcha-section">
                     <label for="captcha">کد امنیتی:</label>
                     <div>
                         <img id="xcpc_captcha_img" src="<?php echo $captcha->CaptchaImage(); ?>" alt="Captcha Image" />
-                        <input type="text" id="xcpc_captcha_input" name="captcha" placeholder="کد کپچا را وارد کنید"
+                        <input type="number" id="xcpc_captcha_input" name="captcha" placeholder="کد کپچا را وارد کنید"
                             required>
                     </div>
                 </div>
@@ -26,7 +26,7 @@ $captcha = new Captcha;
 
             <form id="xcpc_otp_form" style="display: none;">
                 <label for="otp">کد تایید:</label>
-                <input type="text" id="xcpc_otp" name="otp" placeholder="کد تایید را وارد کنید" required>
+                <input type="number" id="xcpc_otp" name="otp" placeholder="کد تایید را وارد کنید" required>
                 <button type="button" class="login-btn" onclick="verifyOTP(this)">ورود</button>
             </form>
 

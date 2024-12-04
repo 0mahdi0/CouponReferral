@@ -24,14 +24,8 @@ $withdrawalAmount = $userBalance * ($withdrawalPercent / 100);
 ?>
 <!-- Main Page Layout -->
 <div class="withdrawal_page">
-    <div class="withdrawal-container">
-        <button id="withdrawalBtn" onclick="showWithdrawalPopup()">برداشت</button>
-    </div>
-
-    <!-- Withdrawal Popup -->
-    <div id="withdrawalPopup" class="popup" style="display: none;">
-        <div class="popup-content">
-            <span class="close-btn" onclick="closeWithdrawalPopup()">&times;</span>
+    <div>
+        <div>
             <h2>جزئیات کیف پول</h2>
             <p><strong>موجودی کیف پول:</strong> <?php echo number_format($userBalance); ?> تومان</p>
             <p><strong>موجودی قابل برداشت:</strong> <?php echo number_format($withdrawalAmount); ?> تومان</p>

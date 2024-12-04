@@ -135,6 +135,13 @@ class Payment_Melli
                             if ($userCheapCode != "") {
                                 $Notice .= "<br> کد خرید ارزان شما : $userCheapCode";
                             }
+                            $user = get_user_by('id', $customer_id);
+                            $user_roles = $user->roles;
+                            if (in_array('doctor', $user_roles)) {
+                                $xcpcConfig = get_option('xcpcConfig');
+                                $doctorDiscount = intval($xcpcConfig['doctorDiscount']);
+                                UserCashbackBalance($customer_id, $order->get_total() * ($doctorDiscount / 100));
+                            }
                             return ["status" => true, "message" => $Notice];
                         } else {
                             // Verification failed

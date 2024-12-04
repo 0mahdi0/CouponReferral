@@ -425,7 +425,7 @@ class CouponReferralDoctor
     public function shortcodeXcpcDoctorPaymentVerify()
     {
         if (!isset($_GET['action'])) {
-            include_once(XCPC_DIR . "inc/pages/front-doctor-payment-verify.php");
+            include_once(XCPC_DIR . "inc/pages/front-payment-verify.php");
         }
         return ob_get_clean();
     }

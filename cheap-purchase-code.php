@@ -131,3 +131,20 @@ function nbs_custom_login_form()
         echo do_shortcode('[xcpc_login]');
     }
 }
+
+add_filter('woocommerce_checkout_fields', 'custom_remove_checkout_fields');
+function custom_remove_checkout_fields($fields) {
+    unset($fields['billing']['billing_email']); // Remove the email field
+    unset($fields['billing']['billing_company']); // Remove the email field
+    return $fields;
+}
+
+// Disable WordPress user registration notification emails
+add_filter('send_email_change_email', '__return_false');
+add_filter('send_password_change_email', '__return_false');
+
+// Disable the admin notification email when a new user registers
+add_filter('wp_new_user_notification_email_admin', '__return_false');
+
+// Optional: Disable the user notification email when they register
+add_filter('wp_new_user_notification_email', '__return_false');

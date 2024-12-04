@@ -19,7 +19,7 @@
                 required>
         </div>
         <div class="discount-section">
-            <label for="doctor-discount">تعیین تخفیف پزشک</label>
+            <label for="doctor-discount">تعیین تخفیف پزشک ها/نمایندگان</label>
             <input type="number" name="doctor-discount" id="doctor-discount" value="<?= $xcpcConfig['doctorDiscount'] ?>"
                 required>
         </div>

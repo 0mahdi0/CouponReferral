@@ -54,7 +54,11 @@ function verifyOTP(elem) {
             if (response.success) {
                 if (response.data['is_new'] == false) {
                     jQuery("#signup_success_message").show();
-                    window.location.href = "/my-account";
+                    if (window.location.pathname.includes("cart") || window.location.pathname.includes("checkout")) {
+                        window.location.href = "/checkout";
+                    } else {
+                        window.location.href = "/my-account";
+                    }
                 } else {
                     document.getElementById("xcpc_otp_form").style.display = "none";
                     document.getElementById("xcpc_signup_form").style.display = "block";
@@ -94,7 +98,11 @@ function signup(elem) {
         success: function (response) {
             if (response.success) {
                 jQuery("#signup_success_message").show();
-                window.location.href = "/my-account";
+                if (window.location.pathname.includes("cart") || window.location.pathname.includes("checkout")) {
+                    window.location.href = "/checkout";
+                } else {
+                    window.location.href = "/my-account";
+                }
             } else {
                 jQuery("#signup_fail_else").show();
                 jQuery("#signup_fail_else").html(response.data);
@@ -188,14 +196,6 @@ function searchPatientByPhone() {
     });
 }
 
-function showWithdrawalPopup() {
-    document.getElementById('withdrawalPopup').style.display = 'block';
-}
-
-function closeWithdrawalPopup() {
-    document.getElementById('withdrawalPopup').style.display = 'none';
-}
-
 function submitWithdrawalRequest(accessibleWithdrawalAmount) {
     jQuery("#withdrawal_fail_message").hide();
     var withdrawal_amount = jQuery("#xcpc_withdrawal_amount").val();
@@ -218,7 +218,7 @@ function submitWithdrawalRequest(accessibleWithdrawalAmount) {
             if (response.success) {
                 jQuery("#withdrawal_success_message").show();
                 setTimeout(() => {
-                    closeWithdrawalPopup();
+                    window.location.reload(0);
                 }, 1500);
             }
         },
@@ -232,3 +232,24 @@ jQuery("#xcpc_phoneForm, #xcpc_otp_form ,#xcpc_signup_form").submit(function (e)
     e.preventDefault()
     return false;
 });
+jQuery("a.checkout-button.button.alt.wc-forward").click(function (e) {
+    e.preventDefault();
+    var checkoutHref = jQuery(this).attr("href");
+    jQuery.post(XcpcAjax.ajaxurl, {
+        action: 'is_user_logged_in'
+    }, function (response) {
+        if (response.success == true) {
+            window.location.href = checkoutHref;
+        } else {
+            jQuery("body").append(response.data);
+        }
+    });
+});
+
+function showWithdrawalPopup() {
+    document.getElementById('withdrawalPopup').style.display = 'flex';
+}
+
+function closeWithdrawalPopup() {
+    document.getElementById('withdrawalPopup').style.display = 'none';
+}

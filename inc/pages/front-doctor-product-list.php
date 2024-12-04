@@ -1,5 +1,6 @@
 <?php
-function doctor_product_list_shortcode() {
+function doctor_product_list_shortcode()
+{
     $args = array(
         'post_type' => 'product',
         'posts_per_page' => -1,
@@ -20,6 +21,7 @@ function doctor_product_list_shortcode() {
 
     ob_start();
     if ($products->have_posts()) {
+        echo "<button class='tab' onclick='window.location.href= `https://exirnab.com/doctor-checkout/`'>ادامه و پرداخت</button>";
         echo '<div class="doctor-product-list">';
         while ($products->have_posts()) {
             $products->the_post();
@@ -42,8 +44,8 @@ function doctor_product_list_shortcode() {
 
             // **3. Get current quantity of the product in cart**
             $quantity_in_cart = 0;
-            foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-                if ( $cart_item['product_id'] == $product->get_id() ) {
+            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                if ($cart_item['product_id'] == $product->get_id()) {
                     $quantity_in_cart = $cart_item['quantity'];
                     break;
                 }
@@ -60,7 +62,7 @@ function doctor_product_list_shortcode() {
             echo '<a href="' . get_permalink() . '" class="product-title">' . get_the_title() . '</a>';
             // Display the prices
             echo '<div class="price-container">';
-            echo '<span class="doctor-price">قیمت پزشک: ' . wc_price($discounted_price) . '</span>';
+            echo '<span class="doctor-price">قیمت نماینده: ' . wc_price($discounted_price) . '</span>';
             echo '<span class="patient-price">قیمت بیمار: ' . $product->get_price_html() . '</span>';
             echo '</div>';
             // **2. Add quantity buttons and counter with optimized UI**

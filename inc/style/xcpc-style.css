@@ -1,3 +1,11 @@
+div,
+span,
+p,
+a,
+button {
+    font-family: var(--e-global-typography-primary-font-family) !important;
+}
+
 .normal_login_page,
 .doctor_login_page {
     min-width: 100vw;
@@ -6,7 +14,6 @@
 }
 
 .normal_login_page .login-container,
-.withdrawal_page .withdrawal-container,
 .doctor_login_page .login-container {
     text-align: center;
     margin-top: 20%;
@@ -19,9 +26,13 @@
     cursor: pointer;
 }
 
+.withdrawal-container {
+    margin: 1rem 0;
+    justify-content: center;
+}
 
 .normal_login_page .popup-content,
-.withdrawal_page .popup-content,
+.withdrawal-container .popup-content,
 .doctor_login_page .popup-content {
     background-color: white;
     padding: 20px;
@@ -339,6 +350,17 @@ div#loginPopup {
     width: 400px;
 }
 
-.login-btn{
+.login-btn {
     font-family: var(--e-global-typography-primary-font-family) !important;
+}
+
+.popup_mode {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1013;
+    background: #0000007d;
+    display: flex;
+    align-items: center;
 }

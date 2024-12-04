@@ -8,6 +8,9 @@ class CouponReferralCustomer
         add_action('wp_ajax_nopriv_xcpc_send_otp_veify', [$this, 'xcpcOtpVerify']);
         add_action('wp_ajax_nopriv_xcpc_signup', [$this, 'xcpcSignup']);
 
+        add_action('wp_ajax_is_user_logged_in',  [$this, 'check_user_logged_in']);
+        add_action('wp_ajax_nopriv_is_user_logged_in',  [$this, 'check_user_logged_in']);
+
         // add_action('wp_ajax_xcpc_send_otp_veify', [$this, 'xcpcOtpVerify']);
         // add_action('wp_ajax_xcpc_send_sms_to_phone', [$this, 'xcpcSendSmsToPhone']);
         // add_action('wp_ajax_xcpc_signup', [$this, 'xcpcSignup']);
@@ -16,8 +19,65 @@ class CouponReferralCustomer
         add_action('wp_ajax_nopriv_apply_custom_coupon_code_ajax', [$this, 'apply_custom_coupon_code_ajax']);
 
         add_shortcode('xcpc_login', [$this, 'shortcodeXcpcLogin']);
-        add_action('woocommerce_cart_coupon', [$this, 'xcpcInputCheapCode']);
         add_action('woocommerce_applied_coupon', [$this, 'set_dynamic_coupon_type']);
+
+        add_action('woo_wallet_after_my_wallet_content',  [$this, 'my_wallet_content_withdrawal']);
+    }
+    public function my_wallet_content_withdrawal()
+    {
+        $userBalance = get_user_meta(get_current_user_id(), "_current_woo_wallet_balance", true);
+        $userBalance = intval($userBalance);
+
+        // Retrieve withdrawal configuration
+        $xcpcConfig = get_option('xcpcConfig');
+        $withdrawalPercent = 0;
+
+        // Determine the applicable withdrawal percentage based on conditions
+        foreach ($xcpcConfig['withdrawalConditions'] as $keyCondition => $Condition) {
+            if (($Condition['min'] != "" || $Condition['min'] != "0") && ($Condition['max'] == "" || $Condition['max'] == "0")) {
+                if ($Condition['min'] <= $userBalance) {
+                    $withdrawalPercent = $Condition['precent'];
+                }
+            } else {
+                if ($Condition['min'] <= $userBalance && $userBalance <= $Condition['max']) {
+                    $withdrawalPercent = intval($Condition['precent']);
+                }
+            }
+        }
+        // Calculate the withdrawal amount
+        $withdrawalAmount = $userBalance * ($withdrawalPercent / 100);
+?>
+        <div class="withdrawal_page">
+            <button id="withdrawalBtn" onclick="showWithdrawalPopup()">برداشت</button>
+            <div id="withdrawalPopup" class="withdrawal-container" style="display: none;">
+                <div class="popup-content">
+                    <span class="close-btn" onclick="closeWithdrawalPopup()">&times;</span>
+                    <h2>جزئیات کیف پول</h2>
+                    <p><strong>موجودی قابل برداشت:</strong> <?php echo number_format($withdrawalAmount); ?> تومان</p>
+                    <form id="xcpc_withdrawalForm">
+                        <label for="xcpc_withdrawal_amount">مبلغ :</label>
+                        <input type="number" max="<?= $withdrawalAmount ?>" id="xcpc_withdrawal_amount" placeholder="مبلغ (تومان)" required>
+                        <input type="text" id="xcpc_sheba_number" placeholder="شماره شبا" required>
+                        <button type="button" onclick="submitWithdrawalRequest(<?= $withdrawalAmount ?>)">ثبت درخواست</button>
+                    </form>
+                    <div>
+                        <p id="withdrawal_fail_message">مبلغ بیشتر از حد مجاز است</p>
+                        <p id="withdrawal_success_message">درخواست با موفقیت ثبت شد</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+<?php
+    }
+    public function check_user_logged_in()
+    {
+        if (is_user_logged_in()) {
+            wp_send_json_success("به پرداخت انتقال داده میشوید");
+        } else {
+            include_once(XCPC_DIR . "inc/lib/captcha.php");
+            $captcha = new Captcha;
+            wp_send_json_error('<div class="normal_login_page popup_mode"><!-- Login Popup --><div id="loginPopup" class="popup"><div class="popup-content"><h2>ورود به حساب</h2><form id="xcpc_phoneForm"><label for="phone">شماره موبایل:</label><input type="hidden" value="normal" name="xcpc_login_input_type" id="xcpc_login_input_type"><input type="number" dir="ltr" id="xcpc_phone_input" name="phone" placeholder="شماره موبایل خود را وارد کنید" required=""><div class="captcha-section"><label for="captcha">کد امنیتی:</label><div><img decoding="async" id="xcpc_captcha_img" src="' . $captcha->CaptchaImage() . '" alt="Captcha Image"><input type="number" dir="ltr" id="xcpc_captcha_input" name="captcha" placeholder="کد کپچا را وارد کنید" required=""></div></div><button type="button" class="login-btn" onclick="sendOTP(this)">ارسال کد</button></form><form id="xcpc_otp_form" style="display: none;"><label for="otp">کد تایید:</label><input type="number" id="xcpc_otp" dir="ltr" name="otp" placeholder="کد تایید را وارد کنید" required=""><button type="button" class="login-btn" onclick="verifyOTP(this)">ورود</button></form><form id="xcpc_signup_form" style="display: none;"><label for="otp">نام:</label><input type="text" id="xcpc_signup_firstName" name="firstName" placeholder="نام" required=""><label for="otp">نام خانوادگی:</label><input type="text" id="xcpc_signup_lastName" name="lastName" placeholder="نام خانوادگی" required=""><div><label for="otp">جنسیت:</label></div><div><input type="radio" id="xcpc_gender_man" name="gender" value="man" ,="" checked="checked"><label for="xcpc_gender_man">مرد</label><input type="radio" id="xcpc_gender_woman" name="gender" value="woman"><label for="xcpc_gender_woman">زن</label></div><button type="button" class="login-btn" onclick="signup(this)">ثبت نام</button></form><div><p id="signup_success_message">ثبت نام با موفقیت انجام شد. انتقال به حساب کاربری...</p><p id="signup_fail_else"></p></div></div></div></div>');
+        }
     }
     public function set_dynamic_coupon_type($coupon_code)
     {
@@ -49,57 +109,6 @@ class CouponReferralCustomer
             wp_send_json_error(__('Please enter a custom code.', 'woocommerce'));
         }
         wp_die();
-    }
-
-    public function xcpcInputCheapCode()
-    {
-?>
-        <div class="woocommerce-cart-custom-coupon">
-            <label for="xcpc_cheap_code_field">کد خرید ارزان: </label>
-            <input type="text" name="xcpc_cheap_code_field" id="xcpc_cheap_code_field" value=""
-                placeholder="کد تخفیف را وارد کنید" />
-            <button type="button" class="button" id="update_cart_button" disabled>ثبت کد</button>
-        </div>
-        <script>
-            function setupCouponCodeHandler() {
-                jQuery(document).ready(function($) {
-                    // Enable button on keyup
-                    $('#xcpc_cheap_code_field').on('keyup', function() {
-                        $('#update_cart_button').prop('disabled', !$(this).val().length);
-                    });
-
-                    // AJAX for submitting the custom code without page reload
-                    $('#update_cart_button').on('click', function() {
-                        var xcpc_cheap_code_field = $('#xcpc_cheap_code_field').val();
-
-                        $.ajax({
-                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                            type: 'POST',
-                            data: {
-                                action: 'apply_custom_coupon_code_ajax',
-                                xcpc_cheap_code_field: xcpc_cheap_code_field
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    $('.woocommerce-cart-form').before('<div class="woocommerce-message">' + response.data + '</div>');
-                                } else {
-                                    $('.woocommerce-cart-form').before('<div class="woocommerce-error">' + response.data + '</div>');
-                                }
-                            }
-                        });
-                    });
-                });
-            }
-
-            // Initial setup
-            setupCouponCodeHandler();
-
-            // Reattach event listeners after cart updates
-            jQuery(document.body).on('updated_cart_totals', function() {
-                setupCouponCodeHandler();
-            });
-        </script>
-<?php
     }
 
     public function xcpcSendSmsToPhone()
@@ -161,7 +170,10 @@ class CouponReferralCustomer
             'display_name' => $firstName . " " . $lastName,
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'gender' => $gender
+            'gender' => $gender,
+            'billing_first_name' => $firstName,
+            'billing_last_name' => $lastName,
+            'billing_phone' => $_SESSION['phone_number']
         ]);
         wp_send_json_success("ثبت نام با موفقیت انجام شد", 200);
     }
