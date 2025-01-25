@@ -14,7 +14,7 @@
                 required>
         </div>
         <div class="discount-section">
-            <label for="discount-code">تعیین تخفیف کد خرید ارزان</label>
+            <label for="discount-code">تعیین تخفیف کد خرید ویژه</label>
             <input type="number" name="discount-code" id="discount-code" value="<?= $xcpcConfig['discountCode'] ?>"
                 required>
         </div>

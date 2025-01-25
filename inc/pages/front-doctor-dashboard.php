@@ -75,6 +75,7 @@ function xcpc_doctor_dashboard_shortcode()
                 <button class="tab" data-tab="wallet">کیف پول/برداشت</button>
                 <button class="tab" data-tab="history">تاریخچه سفارشات</button>
                 <button class="tab" data-tab="profile">پروفایل</button>
+                <button class="tab" onclick="window.location.href = '<?= esc_url(wp_logout_url(get_permalink())); ?>'">خروج</button>
             </div>
             <div class="tab-content">
                 <!-- ثبت سفارش (Order Placement) Tab -->

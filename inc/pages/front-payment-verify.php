@@ -12,6 +12,8 @@ if (isset($_POST['OrderId'])) {
         <div class="message-box _success">
             <h2> پرداخت انجام شد </h2>
             <p> <?= $paymentVerify['message'] ?> </p>
+            <br>
+            <button onclick="window.location.href = window.location.origin">بازگشت به صفحه اصلی</button>
         </div>
     <?php
     } else {

@@ -53,6 +53,7 @@ function verifyOTP(elem) {
         success: function (response) {
             if (response.success) {
                 if (response.data['is_new'] == false) {
+                    jQuery("#signup_success_message").text(response.message);
                     jQuery("#signup_success_message").show();
                     if (window.location.pathname.includes("cart") || window.location.pathname.includes("checkout")) {
                         window.location.href = "/checkout";
@@ -97,6 +98,7 @@ function signup(elem) {
         },
         success: function (response) {
             if (response.success) {
+                jQuery("#signup_success_message").text(response.message);
                 jQuery("#signup_success_message").show();
                 if (window.location.pathname.includes("cart") || window.location.pathname.includes("checkout")) {
                     window.location.href = "/checkout";
@@ -216,6 +218,7 @@ function submitWithdrawalRequest(accessibleWithdrawalAmount) {
         data: data,
         success: function (response) {
             if (response.success) {
+                jQuery("#withdrawal_success_message").text(response.message);
                 jQuery("#withdrawal_success_message").show();
                 setTimeout(() => {
                     window.location.reload(0);
@@ -232,19 +235,24 @@ jQuery("#xcpc_phoneForm, #xcpc_otp_form ,#xcpc_signup_form").submit(function (e)
     e.preventDefault()
     return false;
 });
-jQuery("a.checkout-button.button.alt.wc-forward").click(function (e) {
-    e.preventDefault();
-    var checkoutHref = jQuery(this).attr("href");
-    jQuery.post(XcpcAjax.ajaxurl, {
-        action: 'is_user_logged_in'
-    }, function (response) {
-        if (response.success == true) {
-            window.location.href = checkoutHref;
-        } else {
-            jQuery("body").append(response.data);
-        }
+
+function checkLogin() {
+    jQuery("a.checkout-button.button.alt.wc-forward").click(function (e) {
+        e.preventDefault();
+        var checkoutHref = jQuery(this).attr("href");
+        jQuery.post(XcpcAjax.ajaxurl, {
+            action: 'is_user_logged_in'
+        }, function (response) {
+            if (response.success == true) {
+                window.location.href = checkoutHref;
+            } else {
+                jQuery("body").append(response.data);
+            }
+        });
     });
-});
+}
+
+checkLogin();
 
 function showWithdrawalPopup() {
     document.getElementById('withdrawalPopup').style.display = 'flex';
@@ -253,3 +261,12 @@ function showWithdrawalPopup() {
 function closeWithdrawalPopup() {
     document.getElementById('withdrawalPopup').style.display = 'none';
 }
+
+jQuery(document).ready(function ($) {
+    $(document).ajaxComplete(function (event, xhr, settings) {
+        if (settings.url == "https://exirnab.com/cart/") {
+            console.log("AJAX request completed:", );
+            checkLogin();
+        }
+    });
+});

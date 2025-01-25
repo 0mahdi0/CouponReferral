@@ -11,7 +11,7 @@ class CouponReferralMenu
     {
         add_menu_page(
             "CouponReferral",
-            "خرید ارزان",
+            "خرید ویژه",
             "manage_options",
             "couponreferral",
             [$this, "callbackCouponReferralMenu"],
@@ -29,6 +29,36 @@ class CouponReferralMenu
         // foreach ($formDatas as $key => $formData) {
         //     $formDatas[$key] = sanitize_text_field($formData);
         // }
+        // Get all published products
+        $args = array(
+            'post_type' => 'product',
+            'posts_per_page' => -1,
+            'post_status' => 'publish', // Only products with 'publish' status
+        );
+        $product_discount = intval($formDatas['siteDiscount']);
+        $special_discount = intval($formDatas['discountCode']);
+        $products = get_posts($args);
+
+        foreach ($products as $product_post) {
+            $product = wc_get_product($product_post->ID);
+
+            // Get regular price
+            $regular_price = $product->get_regular_price();
+
+            if ($regular_price) {
+                // Remove existing sale price
+                $product->set_sale_price('');
+
+                // Calculate new sale price
+                $sale_price = $regular_price - ($regular_price * ($product_discount / 100));
+                $special_price = $sale_price - ($sale_price * ($special_discount / 100));
+                update_post_meta($product_post->ID, "special_amount", $special_price);
+                // Update new sale price
+                $product->set_sale_price($sale_price);
+                $product->save();
+            }
+        }
+
         // Process or store the data as needed
         $xcpcConfig = get_option('xcpcConfig');
         if ($xcpcConfig) {

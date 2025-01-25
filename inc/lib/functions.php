@@ -1,27 +1,52 @@
 <?php
-function generateCustomAlgorithm($input,)
-{
-    // Ensure the input is an 11-digit number
-    if (preg_match('/^\d{11}$/', $input)) {
-        // Get the last 6 digits
-        $lastSixDigits = substr($input, -6);
+// function generateCustomAlgorithm($input)
+// {
+//     // Ensure the input is an 11-digit number
+//     if (preg_match('/^\d{11}$/', $input)) {
+//         // Get the last 6 digits
+//         $lastSixDigits = substr($input, -6);
 
-        // Convert the digits to an array for shuffling
-        $digitsArray = str_split($lastSixDigits);
+//         // Convert the digits to an array for shuffling
+//         $digitsArray = str_split($lastSixDigits);
 
-        // Shuffle the array
-        shuffle($digitsArray);
+//         // Shuffle the array
+//         shuffle($digitsArray);
 
-        // Convert the shuffled array back to a string
-        $shuffledDigits = "exir" . implode('', $digitsArray);
+//         // Convert the shuffled array back to a string
+//         $shuffledDigits = "exir" . implode('', $digitsArray);
 
-        // Concatenate "exir" with the shuffled digits
-        return $shuffledDigits;
-    } else {
-        return "Invalid input. Please provide an 11-digit number.";
+//         // Concatenate "exir" with the shuffled digits
+//         return $shuffledDigits;
+//     } else {
+//         return "Invalid input. Please provide an 11-digit number.";
+//     }
+// }
+
+function generateCouponCode($length = 8) {
+
+    // Generate 6 random numbers
+    $numbers = str_split(str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT));
+
+    // Generate 2 random uppercase letters
+    $letters = [
+        chr(rand(65, 90)), // First random letter
+        chr(rand(65, 90))  // Second random letter
+    ];
+
+    // Randomly place letters in the code
+    $code = [];
+    $letterIndexes = array_rand(range(0, $length - 1), 2);
+
+    for ($i = 0; $i < $length; $i++) {
+        if (in_array($i, $letterIndexes)) {
+            $code[] = array_shift($letters);
+        } else {
+            $code[] = array_shift($numbers);
+        }
     }
-}
 
+    return strtolower(implode('', $code));
+}
 
 function cheapCodeDuplicateCheck($user_id)
 {
@@ -84,8 +109,10 @@ function UserCashbackBalance($user_id, $price)
     $userBalance = get_user_meta($user_id, "_current_woo_wallet_balance", true);
     $userBalance = intval($userBalance);
     $xcpcConfig = get_option('xcpcConfig');
-    $updatedBalance = $userBalance + ($price * (intval($xcpcConfig['walletReturn']) / 100));
+    $newprice = ($price * (intval($xcpcConfig['walletReturn']) / 100));
+    $updatedBalance = $userBalance + $newprice;
     woo_wallet()->wallet->credit($user_id, $updatedBalance, "");
+    return $newprice;
 }
 
 function SubmitCheapCode($order)
@@ -98,7 +125,7 @@ function SubmitCheapCode($order)
         if (in_array('customer', $user_roles)) {
             $dataCoupon = cheapCodeDuplicateCheck($customer_id);
             if ($dataCoupon == array()) {
-                $userCheapCode = generateCustomAlgorithm($order->get_billing_phone());
+                $userCheapCode = generateCouponCode();
                 $xcpcConfig = get_option('xcpcConfig');
                 $wcCheapCoupon = wcCheapCoupon($userCheapCode, $customer_id, "percent", $xcpcConfig['discountCode'], 'userCheapCode');
                 if ($wcCheapCoupon != 0) {
@@ -671,3 +698,65 @@ function ww_update_status_change_date($new_status, $old_status, $post)
     }
 }
 add_action('transition_post_status', 'ww_update_status_change_date', 10, 3);
+
+
+// Prevent Elementor from connecting to my.elementor.com
+add_filter('elementor/connect/additional-connect-info', '__return_empty_array');
+add_filter('elementor/connect/connect-url', '__return_empty_string');
+add_filter('elementor/connect/remote-info-data', '__return_empty_array');
+
+// Handle the base-app.php errors by providing default values
+add_filter('elementor/connect/apps/get_client_data', function($client_data) {
+    if (is_wp_error($client_data)) {
+        return [
+            'client_id' => '',
+            'auth_secret' => '',
+            'redirect_uri' => '',
+            'callback' => '',
+            'admin_notice' => '',
+        ];
+    }
+    return $client_data;
+}, 10, 1);
+
+// Prevent connection attempts entirely without showing error
+add_filter('pre_http_request', function($pre, $parsed_args, $url) {
+    if (strpos($url, 'my.elementor.com') !== false) {
+        // Return a valid response to avoid the error
+        return [
+            'body' => '',
+            'response' => [
+                'code' => 200,
+            ],
+            'headers' => [],
+            'cookies' => [],
+        ];
+    }
+    return $pre;
+}, 10, 3);
+
+// Disable Elementor Connect Library
+add_action('elementor/init', function() {
+    if (class_exists('\Elementor\Core\Common\Modules\Connect\Module')) {
+        remove_action('elementor/editor/before_enqueue_scripts', [
+            \Elementor\Core\Common\Modules\Connect\Module::class,
+            'enqueue_connect_scripts'
+        ]);
+    }
+});
+
+// Remove Connect menu item
+add_action('admin_menu', function() {
+    remove_submenu_page('elementor', 'elementor-connect');
+}, 99);
+
+// Disable library sync
+add_filter('elementor/api/get_templates/body_args', '__return_empty_array');
+
+// Prevent 404 errors on API routes
+add_filter('elementor/api/get_info_data', '__return_empty_array');
+
+// Suppress specific WP_Error notices
+add_action('init', function() {
+    remove_action('admin_notices', [\Elementor\Core\Common\Modules\Connect\Module::class, 'admin_notice']);
+});

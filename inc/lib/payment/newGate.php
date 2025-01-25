@@ -111,13 +111,22 @@ class Payment_Melli
                             update_post_meta($order_id, 'WC_Gateway_Melli_OrderId', $OrderId);
                             update_post_meta($order_id, 'WC_Gateway_Melli_RetrivalRefNo', $RetrivalRefNo);
                             update_post_meta($order_id, 'WC_Gateway_Melli_TraceNo', $TraceNo);
+                            $user = get_user_by('id', $customer_id);
+                            $phone      = get_user_meta($customer_id, 'billing_phone', true);
+                            $userCheapCode = SubmitCheapCode($order);
 
                             $order->payment_complete($TraceNo);
                             $applied_coupons = $order->get_coupon_codes();
-                            if (isset($applied_coupons[0])) {
+                            include_once(XCPC_DIR . "inc/lib/SMS.php");
+                            $sms = new SMS();
+                            $user_roles = $user->roles;
+                            if (isset($applied_coupons[0]) && !in_array('doctor', $user_roles)) {
                                 $parent_user_id = getAutherByCode($applied_coupons[0]);
                                 addOrUpdateSubsetUsers($parent_user_id, $customer_id);
-                                UserCashbackBalance($parent_user_id, $order->get_total());
+                                $wallet_amount = UserCashbackBalance($parent_user_id, $order->get_total());
+                                $parent_user = get_user_by('id', $parent_user_id);
+                                $parent_phone = get_user_meta($parent_user_id, 'billing_phone', true);
+                                $sms->WalletSms($parent_phone, $parent_user->display_name, $wallet_amount, $user->display_name, "", "");
                             }
                             $woocommerce->cart->empty_cart();
 
@@ -127,20 +136,38 @@ class Payment_Melli
                             $Note .= __("شماره درخواست تراکنش: $TraceNo}", 'woocommerce') . '<br>';
                             $order->add_order_note($Note);
 
+
                             $Notice = wpautop(wptexturize($this->settings['success_massage']));
                             $Notice = str_replace("{transaction_id}", $RetrivalRefNo, $Notice);
                             $Notice = str_replace("{SaleOrderId}", $TraceNo, $Notice);
 
-                            $userCheapCode = SubmitCheapCode($order);
                             if ($userCheapCode != "") {
-                                $Notice .= "<br> کد خرید ارزان شما : $userCheapCode";
+                                $sms->successPaymentSms(
+                                    $user->display_name,
+                                    $phone,
+                                    "",
+                                    $order_id,
+                                    $order->get_total(),
+                                    $userCheapCode,
+                                    "normal_with_code"
+                                );
+                            } else {
+                                $sms->successPaymentSms(
+                                    $user->display_name,
+                                    $phone,
+                                    "",
+                                    $order_id,
+                                    $order->get_total(),
+                                    "",
+                                    "normal"
+                                );
                             }
-                            $user = get_user_by('id', $customer_id);
-                            $user_roles = $user->roles;
+                            $Notice = str_replace("{userCheapCode}", $userCheapCode, $Notice);
                             if (in_array('doctor', $user_roles)) {
                                 $xcpcConfig = get_option('xcpcConfig');
                                 $doctorDiscount = intval($xcpcConfig['doctorDiscount']);
-                                UserCashbackBalance($customer_id, $order->get_total() * ($doctorDiscount / 100));
+                                $wallet_amount = UserCashbackBalance($customer_id, $order->get_total() * ($doctorDiscount / 100));
+                                $sms->WalletSms($phone, $user->display_name, $wallet_amount, "", $order->get_total(), $order_id, "doctor");
                             }
                             return ["status" => true, "message" => $Notice];
                         } else {

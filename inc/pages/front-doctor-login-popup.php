@@ -47,7 +47,7 @@ $captcha = new Captcha;
                 <button type="button" class="login-btn" onclick="signup(this)">ثبت نام</button>
             </form>
             <div>
-                <p id="signup_success_message">ثبت نام با موفقیت انجام شد. انتقال به حساب کاربری...</p>
+                <p id="signup_success_message">با موفقیت انجام شد. انتقال به حساب کاربری...</p>
                 <p id="signup_fail_else"></p>
             </div>
         </div>

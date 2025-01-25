@@ -30,7 +30,7 @@ class SMS
         return $response;
     }
 
-    public function sendOtp($phone_number, $user_type = "normal")
+    public function sendOtp($phone_number, $user_type = "normal", $user_name = "")
     {
         $otp = $this->generateOTP();
         $response = '';
@@ -38,10 +38,12 @@ class SMS
             case "normal":
                 $response = $this->sendSms([$otp], $phone_number, 261007);
                 break;
+            case "normal_exist_user":
+                $response = $this->sendSms([$user_name, $otp], $phone_number, 286133);
+                break;
             case "doctor":
                 $response = $this->sendSms(["", $otp], $phone_number, 261020);
                 break;
-
         }
         $response = json_decode($response, true);
         if (strlen($response['Value']) > 15) {
@@ -50,14 +52,15 @@ class SMS
             return "";
         }
     }
-
-
-    function successPaymentSms($name, $phone_number, $orders = "", $order_number = "", $order_amount = "", $user_type = "normal")
+    function successPaymentSms($name, $phone_number, $orders = "", $order_number = "", $order_amount = "",  $discount_code = "", $user_type = "normal")
     {
         $response = '';
         switch ($user_type) {
             case "normal":
                 $response = $this->sendSms([$name, $order_number, $order_amount], $phone_number, 261043);
+                break;
+            case "normal_with_code":
+                $response = $this->sendSms([$name, $order_number, $order_amount, $discount_code], $phone_number, 270990);
                 break;
             case "doctor":
                 $response = $this->sendSms([$name, $order_number, $order_amount], $phone_number, 261045);
@@ -66,6 +69,17 @@ class SMS
                 $response = $this->sendSms([$name, $orders], $phone_number, 261046);
                 break;
         }
-
+    }
+    function WalletSms($phone_number, $name, $wallet_amount, $sub_fullname = "", $order_amount = "", $order_number = "", $user_type = "normal")
+    {
+        $response = '';
+        switch ($user_type) {
+            case "normal":
+                $response = $this->sendSms([$name, $sub_fullname, $wallet_amount], $phone_number, 270991);
+                break;
+            case "doctor":
+                $response = $this->sendSms([$name, $wallet_amount, $order_number, $order_amount], $phone_number, 270992);
+                break;
+        }
     }
 }

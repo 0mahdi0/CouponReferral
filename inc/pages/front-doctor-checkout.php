@@ -1,5 +1,22 @@
 <?php
+if (WC()->cart->is_empty()) {
+    return;
+}
+
+// Loop through cart items
+foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+    $product_id = $cart_item['product_id']; // Get product ID
+
+    // Check if product has the required meta key
+    $meta_value = get_post_meta($product_id, 'product_connections', true);
+
+    // If meta key does not exist or is empty, remove item from cart
+    if (empty($meta_value)) {
+        WC()->cart->remove_cart_item($cart_item_key);
+    }
+}
 $current_cart = WC()->cart->get_cart();
+$total_regular_price = 0;
 ?>
 <div class="doctor-checkout">
     <!-- Patient Information Section -->
@@ -56,7 +73,7 @@ $current_cart = WC()->cart->get_cart();
     ?>
     <!-- Product List Section -->
     <div class="checkout-product-list">
-        <h3>محصولات موجود</h3>
+        <h3>محصولات انتخاب شده</h3>
         <div id="checkout-product-list">
             <?php if (!empty($current_cart)) : ?>
                 <table class="checkout-product-table">
@@ -74,8 +91,9 @@ $current_cart = WC()->cart->get_cart();
                             $product = $cart_item['data'];
                             $product_name = $product->get_name();
                             $product_quantity = $cart_item['quantity'];
-                            $product_price = $product->get_price();
+                            $product_price = $product->get_regular_price();
                             $total_price = $product_price * $product_quantity;
+                            $total_regular_price = $total_regular_price + $total_price;
                             ?>
                             <tr>
                                 <td><strong><?php echo esc_html($product_name); ?></strong></td>
@@ -99,7 +117,7 @@ $current_cart = WC()->cart->get_cart();
         <?php
         } else {
         ?>
-            <div class="checkout-total-amount">جمع کل: <span id="checkout-total-amount"><?php echo WC()->cart->get_total(); ?></span></div>
+            <div class="checkout-total-amount">جمع کل: <span id="checkout-total-amount"><?php echo number_format($total_regular_price); ?> تومان</span></div>
             <button class="checkout-pay-button" onclick="processPayment()">پرداخت</button>
         <?php
         }

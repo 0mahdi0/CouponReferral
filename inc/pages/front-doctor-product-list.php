@@ -3,8 +3,14 @@ function doctor_product_list_shortcode()
 {
     $args = array(
         'post_type' => 'product',
+        "order" => "ASC",
         'posts_per_page' => -1,
-        'post_status'    => 'publish',
+        'post_status'    => 'draft',
+        'meta_query'     => [
+            [
+                'key' => 'product_connections',
+            ],
+        ],
     );
     $products = new WP_Query($args);
 
@@ -17,11 +23,9 @@ function doctor_product_list_shortcode()
     wp_localize_script('doctor-product-list-script', 'doctorProductList', array(
         'ajax_url' => admin_url('admin-ajax.php')
     ));
-    wp_enqueue_style('doctor-product-list-style', XCPC_URL . 'inc/style/doctor-product-list.css');
 
     ob_start();
     if ($products->have_posts()) {
-        echo "<button class='tab' onclick='window.location.href= `https://exirnab.com/doctor-checkout/`'>ادامه و پرداخت</button>";
         echo '<div class="doctor-product-list">';
         while ($products->have_posts()) {
             $products->the_post();
@@ -54,26 +58,27 @@ function doctor_product_list_shortcode()
             echo '<div class="product-item" data-product_id="' . esc_attr($product->get_id()) . '">';
             // Display the product image if it exists
             if (has_post_thumbnail()) {
-                echo '<a href="' . get_permalink() . '">';
-                echo get_the_post_thumbnail($product->get_id(), 'medium');
-                echo '</a>';
+                echo '<span>';
+                echo get_the_post_thumbnail($product->get_id(), 'thumbnail');
+                echo '</span>';
             }
             // Display the product title
-            echo '<a href="' . get_permalink() . '" class="product-title">' . get_the_title() . '</a>';
+            echo '<p class="product-title">' . get_the_title() . '</p>';
             // Display the prices
             echo '<div class="price-container">';
             echo '<span class="doctor-price">قیمت نماینده: ' . wc_price($discounted_price) . '</span>';
-            echo '<span class="patient-price">قیمت بیمار: ' . $product->get_price_html() . '</span>';
+            echo '<span class="patient-price">قیمت برای بیمار: ' . number_format($product->get_price()) . ' تومان</span>';
             echo '</div>';
             // **2. Add quantity buttons and counter with optimized UI**
             echo '<div class="quantity-container">';
-            echo '<button class="quantity-btn minus-btn" type="button">-</button>';
-            echo '<input type="text" class="quantity-input" value="' . esc_attr($quantity_in_cart) . '" size="2" readonly />';
             echo '<button class="quantity-btn plus-btn" type="button">+</button>';
+            echo '<input type="text" class="quantity-input" value="' . esc_attr($quantity_in_cart) . '" size="2" readonly />';
+            echo '<button class="quantity-btn minus-btn" type="button">-</button>';
             echo '</div>';
             echo '</div>';
         }
         echo '</div>';
+        echo "<button class='tab' onclick='window.location.href= `https://exirnab.com/doctor-checkout/`'>ادامه و پرداخت</button>";
     } else {
         echo '<p class="no-products">محصولی یافت نشد.</p>';
     }
