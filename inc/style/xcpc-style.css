@@ -1,359 +1,359 @@
-.normal_login_page,
-.doctor_login_page {
-    min-width: 100vw;
-    display: flex;
-    justify-content: center;
-}
-
-.normal_login_page .login-container,
-.doctor_login_page .login-container {
-    text-align: center;
-    margin-top: 20%;
-}
-
-.normal_login_page #loginBtn,
-.doctor_login_page #loginBtn {
-    font-size: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.withdrawal-container {
-    margin: 1rem 0;
-    justify-content: center;
-}
-
-.normal_login_page .popup-content,
-.withdrawal-container .popup-content,
-.doctor_login_page .popup-content {
-    background-color: white;
-    padding: 20px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-}
-
-.normal_login_page .close-btn,
-.withdrawal_page .close-btn,
-.doctor_login_page .close-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.normal_login_page form,
-.withdrawal_page form,
-.doctor_login_page form {
-    display: flex;
-    flex-direction: column;
-}
-
-.normal_login_page input,
-.withdrawal_page input,
-.doctor_login_page input {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.normal_login_page button,
-.doctor_login_page button,
-.withdrawal_page button,
-.normal_login_page a,
-.withdrawal_page a,
-.doctor_login_page a {
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    margin-top: 10px;
-    width: 100%;
-}
-
-.normal_login_page label,
-.withdrawal_page label,
-.doctor_login_page label {
-    display: inline-block;
-    line-height: 1;
-    vertical-align: middle;
-    margin: 10px 0;
-}
-
-.normal_login_page h2,
-.withdrawal_page h2,
-.doctor_login_page h2 {
-    margin-bottom: 15px;
-    font-size: 24px;
-}
-
-#xcpc_captcha_img {
-    width: 120px;
-    position: absolute;
-    left: 5px;
-    border-radius: 5px;
-}
-
-#xcpc_captcha_input {
-    width: 50%;
-    border-radius: 5px;
-}
-
-#signup_success_message,
-#withdrawal_success_message {
-    display: none;
-    color: green;
-    font-family: var(--e-global-typography-primary-font-family) !important;
-    text-align: center;
-    margin: 15px 0 0;
-    padding: 5px;
-    background: #0080001f;
-    border-radius: 8px;
-}
-
-
-#signup_fail_message,
-#signup_fail_else,
-#withdrawal_fail_message {
-    display: none;
-    font-family: var(--e-global-typography-primary-font-family) !important;
-    color: red;
-    text-align: center;
-    margin: 15px 0 0;
-    padding: 5px;
-    background: #ff000012;
-    border-radius: 8px;
-}
-
-button.otp_verify_button,
-a.otp_verify_button {
-    margin-top: 10px;
-    width: 100%;
-}
-
-/* Style for the input field (matches WooCommerce's default input styles) */
-#xcpc_cheap_code_field {
-    width: 100%;
-    max-width: 190px;
-    margin-right: 10px;
-    padding: 0.6180469716em 1.6180469716em;
-    font-size: 1em;
-    line-height: 1.618;
-    color: #333;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    box-sizing: border-box;
-}
-
-/* Style for the button (matches WooCommerce's default button styles) */
-#update_cart_button {
-    display: inline-block;
-    margin: 0;
-    padding: 0.6180469716em 1.6180469716em;
-    font-size: 1em;
-    line-height: 1.618;
-    text-align: center;
-    color: var(--wp--preset--color--base);
-    background-color: var(--wp--preset--color--contrast);
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    text-decoration: none;
-    box-sizing: border-box;
-    transition: background-color 0.2s ease-in-out;
-}
-
-/* Hover effect for the button */
-#update_cart_button:hover {
-    background-color: var(--wp--preset--color--contrast-2);
-}
-
-/* Ensure the button is disabled appropriately */
-#update_cart_button:disabled {
-    background-color: var(--wp--preset--color--contrast);
-    cursor: not-allowed;
-}
-
-.doctor-checkout {
-    display: flex;
-    max-width: 100%;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    justify-content: space-between;
-    align-items: baseline;
-    flex-wrap: wrap;
-}
-
-.patient-info,
-.checkout-product-list {
-    width: 45%;
-    min-width: 240px;
-}
-
-@media (max-width: 780px) {
-
-    .patient-info,
-    .checkout-product-list {
-        width: 100%;
-        min-width: 240px;
-    }
-}
-
-.doctor-checkout h3 {
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.input-group-patient {
-    margin-bottom: 15px;
-}
-
-.input-group-patient label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.input-group-patient input,
-.input-group-patient select,
-.input-group-patient textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.checkout-product-list {
-    margin-top: 20px;
-}
-
-.checkout-product-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.checkout-product-table th,
-.checkout-product-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-.checkout-product-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-.checkout-product-table td {
-    color: #333;
-}
-
-.checkout-total-amount {
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-.checkout-pay-button {
-    font-family: inherit !important;
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 1em;
-    cursor: pointer;
-}
-
-.checkout-pay-button:hover {
-    background-color: #218838;
-}
-
-.patient-form-error {
-    display: none;
-    color: red;
-    width: 100%;
-}
-
-._failed {
-    border-bottom: solid 4px red !important;
-}
-
-._failed i {
-    color: red !important;
-}
-
-._success {
-    box-shadow: 0 15px 25px #00000019;
-    padding: 45px;
-    width: 100%;
-    text-align: center;
-    margin: 40px auto;
-    border-bottom: solid 4px #28a745;
-}
-
-._success i {
-    font-size: 55px;
-    color: #28a745;
-}
-
-._success h2 {
-    margin-bottom: 12px;
-    font-size: 40px;
-    font-weight: 500;
-    line-height: 1.2;
-    margin-top: 10px;
-}
-
-._success p {
-    margin-bottom: 0px;
-    font-size: 18px;
-    color: #495057;
-    font-weight: 500;
-}
-
-.patient-all-data {
-    display: none;
-}
-
-.jet-listing-grid__item.jet-listing-dynamic-post-10254.jet-equal-columns {
-    display: none;
-}
-
-.captcha-section>div {
-    position: relative;
-}
-
-div#loginPopup {
-    width: 400px;
-}
-
-.login-btn {
-    font-family: var(--e-global-typography-primary-font-family) !important;
-}
-
-.popup_mode {
-    position: fixed;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1013;
-    background: #0000007d;
-    display: flex;
-    align-items: center;
+.normal_login_page,
+.doctor_login_page {
+    min-width: 100vw;
+    display: flex;
+    justify-content: center;
+}
+
+.normal_login_page .login-container,
+.doctor_login_page .login-container {
+    text-align: center;
+    margin-top: 20%;
+}
+
+.normal_login_page #loginBtn,
+.doctor_login_page #loginBtn {
+    font-size: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.withdrawal-container {
+    margin: 1rem 0;
+    justify-content: center;
+}
+
+.normal_login_page .popup-content,
+.withdrawal-container .popup-content,
+.doctor_login_page .popup-content {
+    background-color: white;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.normal_login_page .close-btn,
+.withdrawal_page .close-btn,
+.doctor_login_page .close-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.normal_login_page form,
+.withdrawal_page form,
+.doctor_login_page form {
+    display: flex;
+    flex-direction: column;
+}
+
+.normal_login_page input,
+.withdrawal_page input,
+.doctor_login_page input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.normal_login_page button,
+.doctor_login_page button,
+.withdrawal_page button,
+.normal_login_page a,
+.withdrawal_page a,
+.doctor_login_page a {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.normal_login_page label,
+.withdrawal_page label,
+.doctor_login_page label {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;
+    margin: 10px 0;
+}
+
+.normal_login_page h2,
+.withdrawal_page h2,
+.doctor_login_page h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+#xcpc_captcha_img {
+    width: 120px;
+    position: absolute;
+    left: 5px;
+    border-radius: 5px;
+}
+
+#xcpc_captcha_input {
+    width: 50%;
+    border-radius: 5px;
+}
+
+#signup_success_message,
+#withdrawal_success_message {
+    display: none;
+    color: green;
+    font-family: var(--e-global-typography-primary-font-family) !important;
+    text-align: center;
+    margin: 15px 0 0;
+    padding: 5px;
+    background: #0080001f;
+    border-radius: 8px;
+}
+
+
+#signup_fail_message,
+#signup_fail_else,
+#withdrawal_fail_message {
+    display: none;
+    font-family: var(--e-global-typography-primary-font-family) !important;
+    color: red;
+    text-align: center;
+    margin: 15px 0 0;
+    padding: 5px;
+    background: #ff000012;
+    border-radius: 8px;
+}
+
+button.otp_verify_button,
+a.otp_verify_button {
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Style for the input field (matches WooCommerce's default input styles) */
+#xcpc_cheap_code_field {
+    width: 100%;
+    max-width: 190px;
+    margin-right: 10px;
+    padding: 0.6180469716em 1.6180469716em;
+    font-size: 1em;
+    line-height: 1.618;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+/* Style for the button (matches WooCommerce's default button styles) */
+#update_cart_button {
+    display: inline-block;
+    margin: 0;
+    padding: 0.6180469716em 1.6180469716em;
+    font-size: 1em;
+    line-height: 1.618;
+    text-align: center;
+    color: var(--wp--preset--color--base);
+    background-color: var(--wp--preset--color--contrast);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Hover effect for the button */
+#update_cart_button:hover {
+    background-color: var(--wp--preset--color--contrast-2);
+}
+
+/* Ensure the button is disabled appropriately */
+#update_cart_button:disabled {
+    background-color: var(--wp--preset--color--contrast);
+    cursor: not-allowed;
+}
+
+.doctor-checkout {
+    display: flex;
+    max-width: 100%;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.patient-info,
+.checkout-product-list {
+    width: 45%;
+    min-width: 240px;
+}
+
+@media (max-width: 780px) {
+
+    .patient-info,
+    .checkout-product-list {
+        width: 100%;
+        min-width: 240px;
+    }
+}
+
+.doctor-checkout h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.input-group-patient {
+    margin-bottom: 15px;
+}
+
+.input-group-patient label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.input-group-patient input,
+.input-group-patient select,
+.input-group-patient textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.checkout-product-list {
+    margin-top: 20px;
+}
+
+.checkout-product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.checkout-product-table th,
+.checkout-product-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.checkout-product-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.checkout-product-table td {
+    color: #333;
+}
+
+.checkout-total-amount {
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.checkout-pay-button {
+    font-family: inherit !important;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.checkout-pay-button:hover {
+    background-color: #218838;
+}
+
+.patient-form-error {
+    display: none;
+    color: red;
+    width: 100%;
+}
+
+._failed {
+    border-bottom: solid 4px red !important;
+}
+
+._failed i {
+    color: red !important;
+}
+
+._success {
+    box-shadow: 0 15px 25px #00000019;
+    padding: 45px;
+    width: 100%;
+    text-align: center;
+    margin: 40px auto;
+    border-bottom: solid 4px #28a745;
+}
+
+._success i {
+    font-size: 55px;
+    color: #28a745;
+}
+
+._success h2 {
+    margin-bottom: 12px;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 10px;
+}
+
+._success p {
+    margin-bottom: 0px;
+    font-size: 18px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.patient-all-data {
+    display: none;
+}
+
+.jet-listing-grid__item.jet-listing-dynamic-post-10254.jet-equal-columns {
+    display: none;
+}
+
+.captcha-section>div {
+    position: relative;
+}
+
+div#loginPopup {
+    width: 400px;
+}
+
+.login-btn {
+    font-family: var(--e-global-typography-primary-font-family) !important;
+}
+
+.popup_mode {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1013;
+    background: #0000007d;
+    display: flex;
+    align-items: center;
 }

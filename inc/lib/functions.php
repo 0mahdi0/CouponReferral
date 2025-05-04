@@ -5,38 +5,30 @@
 //     if (preg_match('/^\d{11}$/', $input)) {
 //         // Get the last 6 digits
 //         $lastSixDigits = substr($input, -6);
-
 //         // Convert the digits to an array for shuffling
 //         $digitsArray = str_split($lastSixDigits);
-
 //         // Shuffle the array
 //         shuffle($digitsArray);
-
 //         // Convert the shuffled array back to a string
 //         $shuffledDigits = "exir" . implode('', $digitsArray);
-
 //         // Concatenate "exir" with the shuffled digits
 //         return $shuffledDigits;
 //     } else {
 //         return "Invalid input. Please provide an 11-digit number.";
 //     }
 // }
-
-function generateCouponCode($length = 8) {
-
+function generateCouponCode($length = 8)
+{
     // Generate 6 random numbers
     $numbers = str_split(str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT));
-
     // Generate 2 random uppercase letters
     $letters = [
         chr(rand(65, 90)), // First random letter
         chr(rand(65, 90))  // Second random letter
     ];
-
     // Randomly place letters in the code
     $code = [];
     $letterIndexes = array_rand(range(0, $length - 1), 2);
-
     for ($i = 0; $i < $length; $i++) {
         if (in_array($i, $letterIndexes)) {
             $code[] = array_shift($letters);
@@ -44,14 +36,11 @@ function generateCouponCode($length = 8) {
             $code[] = array_shift($numbers);
         }
     }
-
     return strtolower(implode('', $code));
 }
-
 function cheapCodeDuplicateCheck($user_id)
 {
     global $wpdb;
-
     // Prepare the SQL query
     $query = $wpdb->prepare(
         "
@@ -63,34 +52,22 @@ function cheapCodeDuplicateCheck($user_id)
         ",
         $user_id
     );
-
     // Execute the query and fetch results
     $results = $wpdb->get_col($query);
-
     return $results ? $results : array();
 }
 function getAutherByCode($code)
 {
     global $wpdb;
-
     // Prepare the SQL query
     $query = $wpdb->prepare(
-        "
-        SELECT post_author 
-        FROM {$wpdb->posts}
-        WHERE post_type = 'shop_coupon'
-        AND post_title = %s
-        AND post_status = 'publish'
-        ",
+        "SELECT post_author FROM {$wpdb->posts} WHERE post_type = 'shop_coupon' AND post_title = %s AND post_status = 'publish'",
         $code
     );
-
     // Execute the query and fetch results
     $results = $wpdb->get_col($query);
-
     return $results ? $results[0] : array();
 }
-
 function addOrUpdateSubsetUsers($parent_user, $sub_user): void
 {
     $subsetUsers = get_user_meta($parent_user, "subsetUsers", true);
@@ -103,7 +80,6 @@ function addOrUpdateSubsetUsers($parent_user, $sub_user): void
         add_user_meta($parent_user, "subsetUsers", [$sub_user]);
     }
 }
-
 function UserCashbackBalance($user_id, $price)
 {
     $userBalance = get_user_meta($user_id, "_current_woo_wallet_balance", true);
@@ -114,11 +90,9 @@ function UserCashbackBalance($user_id, $price)
     woo_wallet()->wallet->credit($user_id, $updatedBalance, "");
     return $newprice;
 }
-
 function SubmitCheapCode($order)
 {
     $customer_id = $order->get_customer_id();
-
     if ($customer_id) {
         $user = get_user_by('id', $customer_id);
         $user_roles = $user->roles;
@@ -143,12 +117,10 @@ function SubmitCheapCode($order)
 }
 function wcCheapCoupon($coupon_code, $customer_id, $discount_type = 'percent', $amount = '0', $description = ''): int|string
 {
-
     // بررسی اینکه آیا کد تخفیف از قبل وجود دارد
     if (wc_get_coupon_id_by_code($coupon_code)) {
         return 0;
     }
-
     // ایجاد پست جدید برای کد تخفیف
     $coupon = array(
         'post_title'   => $coupon_code,
@@ -157,13 +129,10 @@ function wcCheapCoupon($coupon_code, $customer_id, $discount_type = 'percent', $
         'post_author'  => $customer_id,
         'post_type'    => 'shop_coupon'
     );
-
     $new_coupon_id = wp_insert_post($coupon);
-
     if (is_wp_error($new_coupon_id)) {
         return 0;
     }
-
     // تنظیم متا دیتا برای کد تخفیف
     update_post_meta($new_coupon_id, 'discount_type', sanitize_text_field($discount_type));
     update_post_meta($new_coupon_id, 'coupon_amount', floatval($amount));
@@ -173,25 +142,20 @@ function wcCheapCoupon($coupon_code, $customer_id, $discount_type = 'percent', $
     update_post_meta($new_coupon_id, 'limit_usage_to_x_items', '');
     update_post_meta($new_coupon_id, 'expiry_date', ''); // بدون تاریخ انقضا
     update_post_meta($new_coupon_id, 'free_shipping', 'no');
-
     // اضافه کردن ایمیل کاربر به لیست ایمیل‌های مستثنی (تا نتواند از کد استفاده کند)
     // update_post_meta($new_coupon_id, 'exclude_id_addresses', $customer_id);
-
     // اضافه کردن توضیحات (اختیاری)
     if (! empty($description)) {
         update_post_meta($new_coupon_id, 'description', sanitize_text_field($description));
     }
-
     return $new_coupon_id;
 }
 // Exit if accessed directly
 if (! defined('ABSPATH')) {
     exit;
 }
-
 function register_wallet_withdraw_post_type()
 {
-
     $labels = array(
         'name'                  => _x('Wallet Withdraws', 'Post Type General Name', 'text_domain'),
         'singular_name'         => _x('Wallet Withdraw', 'Post Type Singular Name', 'text_domain'),
@@ -245,7 +209,6 @@ function register_wallet_withdraw_post_type()
     register_post_type('wallet_withdraw', $args);
 }
 add_action('init', 'register_wallet_withdraw_post_type', 0);
-
 /**
  * 2. Function to Create a New Wallet Withdraw Post
  *
@@ -258,7 +221,6 @@ add_action('init', 'register_wallet_withdraw_post_type', 0);
  */
 function create_wallet_withdraw_post($title, $content, $author_id, $meta_fields = array())
 {
-
     // Prepare the post data
     $post_data = array(
         'post_title'    => wp_strip_all_tags($title),
@@ -267,25 +229,20 @@ function create_wallet_withdraw_post($title, $content, $author_id, $meta_fields 
         'post_author'   => $author_id,
         'post_type'     => 'wallet_withdraw',
     );
-
     // Insert the post into the database
     $post_id = wp_insert_post($post_data);
-
     // Check for errors
     if (is_wp_error($post_id)) {
         return $post_id;
     }
-
     // If there are meta fields, add them to the post
     if (! empty($meta_fields) && is_array($meta_fields)) {
         foreach ($meta_fields as $meta_key => $meta_value) {
             update_post_meta($post_id, $meta_key, $meta_value);
         }
     }
-
     return $post_id;
 }
-
 /**
  * 3. Automatically Add Wallet Withdraw Archive to Main Menu
  *
@@ -295,22 +252,17 @@ function add_wallet_withdraw_to_main_menu()
 {
     // Define the menu location slug
     $menu_location = 'primary'; // Change this if your theme uses a different location slug
-
     // Get the menu assigned to the location
     $locations = get_nav_menu_locations();
     if (! isset($locations[$menu_location])) {
         // If the primary menu doesn't exist, you might want to create it or exit
         return;
     }
-
     $menu_id = $locations[$menu_location];
-
     // Get all items in the menu
     $menu_items = wp_get_nav_menu_items($menu_id);
-
     // Define the archive link URL
     $archive_link = get_post_type_archive_link('wallet_withdraw');
-
     // Check if the menu already has a link to the wallet_withdraw archive
     $menu_item_exists = false;
     foreach ($menu_items as $item) {
@@ -319,7 +271,6 @@ function add_wallet_withdraw_to_main_menu()
             break;
         }
     }
-
     // If the menu item doesn't exist, add it
     if (! $menu_item_exists) {
         // Prepare the menu item data
@@ -331,13 +282,11 @@ function add_wallet_withdraw_to_main_menu()
             'menu-item-status'   => 'publish',
             'menu-item-parent-id' => 0,
         );
-
         // Add the menu item
         wp_update_nav_menu_item($menu_id, 0, $menu_item_data);
     }
 }
 add_action('after_setup_theme', 'add_wallet_withdraw_to_main_menu');
-
 /**
  * 4. Customize Admin Columns for Wallet Withdraw
  *
@@ -347,7 +296,6 @@ function ww_custom_columns($columns)
 {
     // Remove unwanted columns if any
     unset($columns['date']);
-
     // Define new columns
     $columns = array(
         'cb'                   => '<input type="checkbox" />',
@@ -359,11 +307,9 @@ function ww_custom_columns($columns)
         'status_change_date'   => 'تاریخ تغییر وضعیت', // New Column
         'date'                 => 'تاریخ',
     );
-
     return $columns;
 }
 add_filter('manage_wallet_withdraw_posts_columns', 'ww_custom_columns');
-
 /**
  * Populate the custom columns with data.
  *
@@ -381,17 +327,14 @@ function ww_custom_columns_content($column, $post_id)
                 echo '—';
             }
             break;
-
         case 'full_name':
             $full_name = get_post_meta($post_id, 'full_name', true);
             echo $full_name ? esc_html($full_name) : '—';
             break;
-
         case 'user_phone':
             $user_phone = get_post_meta($post_id, 'user_phone', true);
             echo $user_phone ? esc_html($user_phone) : '—';
             break;
-
         case 'withdraw_amount':
             $amount = get_post_meta($post_id, 'withdraw_amount', true);
             if ($amount) {
@@ -400,7 +343,6 @@ function ww_custom_columns_content($column, $post_id)
                 echo '—';
             }
             break;
-
         case 'withdraw_status':
             $status = get_post_meta($post_id, 'withdraw_status', true);
             $status_labels = array(
@@ -410,12 +352,10 @@ function ww_custom_columns_content($column, $post_id)
             );
             echo isset($status_labels[$status]) ? $status_labels[$status] : '—';
             break;
-
         case 'sheba_number':
             $sheba_number = get_post_meta($post_id, 'sheba_number', true);
             echo $sheba_number ? esc_html($sheba_number) : '—';
             break;
-
         case 'status_change_date':
             $status_change_date = get_post_meta($post_id, 'status_change_date', true);
             if ($status_change_date) {
@@ -424,19 +364,16 @@ function ww_custom_columns_content($column, $post_id)
                 echo '—';
             }
             break;
-
             // Removed 'info' column content
     }
 }
 add_action('manage_wallet_withdraw_posts_custom_column', 'ww_custom_columns_content', 10, 2);
-
 /**
  * 5. Remove "Add New" Button from Wallet Withdraws Admin Page
  */
 function ww_remove_add_new_button()
 {
     global $pagenow;
-
     // Check if on the wallet_withdraw post type listing page
     if ($pagenow === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'wallet_withdraw') {
         // Remove the "Add New" button using CSS
@@ -446,7 +383,6 @@ function ww_remove_add_new_button()
     }
 }
 add_action('admin_head', 'ww_remove_add_new_button');
-
 /**
  * 6. Remove "اطلاعات برداشت" Admin Menu Page
  *
@@ -455,14 +391,12 @@ add_action('admin_head', 'ww_remove_add_new_button');
  *
  * In our updated plugin, we no longer add it, so no action is required here.
  */
-
 /**
  * 7. Add Custom Row Action for Detailed Information
  *
  * Instead of an "اطلاعات" column, we'll add a custom row action link "اطلاعات" to each withdrawal request.
  * This link will direct to the standard "Edit" screen where detailed information can be viewed and edited.
  */
-
 /**
  * 8. Remove "Categories" and "Tags" Meta Boxes from Edit Screen
  */
@@ -472,7 +406,6 @@ function ww_remove_taxonomy_meta_boxes()
     remove_meta_box('tagsdiv-post_tag', 'wallet_withdraw', 'side'); // Tags
 }
 add_action('add_meta_boxes', 'ww_remove_taxonomy_meta_boxes', 99);
-
 /**
  * 9. Remove "اطلاعات برداشت" Admin Menu Page if Exists
  *
@@ -483,7 +416,6 @@ function ww_remove_info_admin_page()
     remove_menu_page('wallet_withdraw_info'); // Remove the menu page by slug
 }
 add_action('admin_menu', 'ww_remove_info_admin_page', 999);
-
 /**
  * 10. Clean Up: Ensure No Residual Submenu Items
  *
@@ -495,7 +427,6 @@ function ww_clean_up_submenus()
     remove_submenu_page('edit.php?post_type=wallet_withdraw', 'post-new.php?post_type=wallet_withdraw');
 }
 add_action('admin_menu', 'ww_clean_up_submenus', 999);
-
 /**
  * 11. Add Meta Boxes for Withdrawal Details
  *
@@ -513,7 +444,6 @@ function ww_register_meta_boxes()
     );
 }
 add_action('add_meta_boxes', 'ww_register_meta_boxes');
-
 /**
  * Callback function to display meta box content.
  *
@@ -523,7 +453,6 @@ function ww_withdraw_details_callback($post)
 {
     // Add a nonce field for security
     wp_nonce_field('ww_save_withdraw_details', 'ww_withdraw_details_nonce');
-
     // Retrieve existing meta data
     $full_name          = get_post_meta($post->ID, 'full_name', true);
     $user_phone         = get_post_meta($post->ID, 'user_phone', true);
@@ -532,11 +461,9 @@ function ww_withdraw_details_callback($post)
     $transaction_date   = get_post_meta($post->ID, 'transaction_date', true);
     $sheba_number       = get_post_meta($post->ID, 'sheba_number', true);
     $status_change_date = get_post_meta($post->ID, 'status_change_date', true);
-
     // Determine if the status dropdown should be disabled
     $withdraw_status = ($withdraw_status == '') ? 'pending' : $withdraw_status;
     $disable_status = ('pending' !== $withdraw_status) ? true : false;
-
 ?>
     <table class="form-table">
         <tr>
@@ -591,7 +518,6 @@ function ww_withdraw_details_callback($post)
     </table>
 <?php
 }
-
 /**
  * Save Meta Box Data
  *
@@ -603,17 +529,14 @@ function ww_save_withdraw_details($post_id)
     if (! isset($_POST['ww_withdraw_details_nonce'])) {
         return;
     }
-
     // Verify that the nonce is valid.
     if (! wp_verify_nonce($_POST['ww_withdraw_details_nonce'], 'ww_save_withdraw_details')) {
         return;
     }
-
     // If this is an autosave, our form has not been submitted, so we don't want to do anything.
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }
-
     // Check the user's permissions.
     if (isset($_POST['post_type']) && 'wallet_withdraw' === $_POST['post_type']) {
         if (! current_user_can('edit_post', $post_id)) {
@@ -622,40 +545,30 @@ function ww_save_withdraw_details($post_id)
     } else {
         return;
     }
-
     /* OK, it's safe to save the data now. */
-
     // Retrieve the old status to detect changes
     $old_status = get_post_meta($post_id, 'withdraw_status', true);
-
     // Initialize a flag to detect unauthorized status change attempts
     $unauthorized_status_change = false;
-
     // Sanitize and save each field.
-
     if (isset($_POST['ww_full_name'])) {
         $full_name = sanitize_text_field($_POST['ww_full_name']);
         update_post_meta($post_id, 'full_name', $full_name);
     }
-
     if (isset($_POST['ww_user_phone'])) {
         $user_phone = sanitize_text_field($_POST['ww_user_phone']);
         update_post_meta($post_id, 'user_phone', $user_phone);
     }
-
     if (isset($_POST['ww_withdraw_amount'])) {
         $withdraw_amount = floatval($_POST['ww_withdraw_amount']);
         update_post_meta($post_id, 'withdraw_amount', $withdraw_amount);
     }
-
     if (isset($_POST['ww_withdraw_status'])) {
         $withdraw_status = sanitize_text_field($_POST['ww_withdraw_status']);
         $allowed_statuses = array('pending', 'accepted', 'rejected');
-
         // Only allow status change if the current status is 'pending'
         if (in_array($withdraw_status, $allowed_statuses, true)) {
             update_post_meta($post_id, 'withdraw_status', $withdraw_status);
-
             // If the status has changed, update the status_change_date
             if ($withdraw_status !== $old_status) {
                 $current_datetime = current_time('mysql');
@@ -663,22 +576,18 @@ function ww_save_withdraw_details($post_id)
             }
         }
     }
-
     if (isset($_POST['ww_transaction_date'])) {
         $transaction_date = sanitize_text_field($_POST['ww_transaction_date']);
         // Convert datetime-local to MySQL datetime format
         $transaction_date = date('Y-m-d H:i:s', strtotime($transaction_date));
         update_post_meta($post_id, 'transaction_date', $transaction_date);
     }
-
     if (isset($_POST['ww_sheba_number'])) {
         $sheba_number = sanitize_text_field($_POST['ww_sheba_number']);
         update_post_meta($post_id, 'sheba_number', $sheba_number);
     }
-
 }
 add_action('save_post', 'ww_save_withdraw_details');
-
 /**
  * 13. (Optional) Automatically Update Status Change Date When Status Changes via Other Means
  *
@@ -689,7 +598,6 @@ function ww_update_status_change_date($new_status, $old_status, $post)
     if ('wallet_withdraw' !== $post->post_type) {
         return;
     }
-
     // Check if the status has changed
     if ($new_status !== $old_status) {
         // Update the status_change_date meta field
@@ -699,14 +607,12 @@ function ww_update_status_change_date($new_status, $old_status, $post)
 }
 add_action('transition_post_status', 'ww_update_status_change_date', 10, 3);
 
-
 // Prevent Elementor from connecting to my.elementor.com
 add_filter('elementor/connect/additional-connect-info', '__return_empty_array');
 add_filter('elementor/connect/connect-url', '__return_empty_string');
 add_filter('elementor/connect/remote-info-data', '__return_empty_array');
-
 // Handle the base-app.php errors by providing default values
-add_filter('elementor/connect/apps/get_client_data', function($client_data) {
+add_filter('elementor/connect/apps/get_client_data', function ($client_data) {
     if (is_wp_error($client_data)) {
         return [
             'client_id' => '',
@@ -718,9 +624,8 @@ add_filter('elementor/connect/apps/get_client_data', function($client_data) {
     }
     return $client_data;
 }, 10, 1);
-
 // Prevent connection attempts entirely without showing error
-add_filter('pre_http_request', function($pre, $parsed_args, $url) {
+add_filter('pre_http_request', function ($pre, $parsed_args, $url) {
     if (strpos($url, 'my.elementor.com') !== false) {
         // Return a valid response to avoid the error
         return [
@@ -734,9 +639,8 @@ add_filter('pre_http_request', function($pre, $parsed_args, $url) {
     }
     return $pre;
 }, 10, 3);
-
 // Disable Elementor Connect Library
-add_action('elementor/init', function() {
+add_action('elementor/init', function () {
     if (class_exists('\Elementor\Core\Common\Modules\Connect\Module')) {
         remove_action('elementor/editor/before_enqueue_scripts', [
             \Elementor\Core\Common\Modules\Connect\Module::class,
@@ -744,19 +648,60 @@ add_action('elementor/init', function() {
         ]);
     }
 });
-
 // Remove Connect menu item
-add_action('admin_menu', function() {
+add_action('admin_menu', function () {
     remove_submenu_page('elementor', 'elementor-connect');
 }, 99);
-
 // Disable library sync
 add_filter('elementor/api/get_templates/body_args', '__return_empty_array');
-
 // Prevent 404 errors on API routes
 add_filter('elementor/api/get_info_data', '__return_empty_array');
-
 // Suppress specific WP_Error notices
-add_action('init', function() {
+add_action('init', function () {
     remove_action('admin_notices', [\Elementor\Core\Common\Modules\Connect\Module::class, 'admin_notice']);
 });
+function SendTelegramAlert(string $Markdowntext = "", string $chat_id = TELEGRAM_CHANEL)
+{
+    include_once(XCPC_DIR . "inc/lib/Telegram.php");
+    $telegram = new Telegram(TELEGRAM_BOT_TOKEN, 'google');
+    $content = array(
+        'chat_id' => $chat_id,
+        'text' => $Markdowntext,
+        'parse_mode' => 'Markdown',
+        'reply_markup' => "",
+    );
+    do {
+        $apiStatus = $telegram->sendMessage($content);
+    } while ($apiStatus == false);
+    return $apiStatus;
+}
+function SendTelegramWithPhoto(string $image_url, string $text = "", string $chat_id = TELEGRAM_CHANEL)
+{
+    include_once(XCPC_DIR . "inc/lib/Telegram.php");
+    $telegram = new Telegram(TELEGRAM_BOT_TOKEN, 'google');
+    $content = array(
+        'chat_id' => $chat_id,
+        'photo' => $image_url,
+        'caption' => $text,
+    );
+    do {
+        $apiStatus = $telegram->sendPhoto($content);
+    } while ($apiStatus == false);
+    return $apiStatus;
+}
+function getIranTime()
+{
+    $url = "https://api.keybit.ir/time/";
+    $response = file_get_contents($url);
+    if ($response === FALSE) {
+        return date("Y-m-d H:i");
+    }
+    $data = json_decode($response, true);
+    if (!$data) {
+        return date("Y-m-d H:i");
+    }
+    $time = $data['time24']['full']['fa'];
+    $date = $data['date']['full']['official']['iso']['fa'];
+    $weekday = $data['date']['weekday']['name'];
+    return "امروز $weekday ، $date - ساعت $time";
+}
